@@ -1,12 +1,355 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="km">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VTH — Khoem Soksivutha</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KHOEM-AI — Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a0d16;
+    --panel:#131a2b;
+    --panel-2:#0f1522;
+    --border:#232c42;
+    --gold:#c9a24b;
+    --gold-dim:#8a7238;
+    --blue:#4f8ff0;
+    --text:#e9e7df;
+    --muted:#8b93a7;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--void);
+    background-image:
+      radial-gradient(ellipse 600px 300px at 15% -5%, rgba(79,143,240,0.10), transparent),
+      radial-gradient(ellipse 500px 260px at 90% 10%, rgba(201,162,75,0.08), transparent);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    padding:32px 20px 0;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .wordmark{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,7vw,42px);
+    letter-spacing:0.01em;
+    color:var(--text);
+    margin:0;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .wordmark .dash{color:var(--gold);font-weight:400;}
+  .tagline{
+    color:var(--muted);
+    font-size:14px;
+    margin:6px 0 0;
+    font-weight:400;
+  }
+  .stats{
+    display:flex;
+    gap:22px;
+    margin:20px 0 0;
+    flex-wrap:wrap;
+  }
+  .stat{font-size:13px;color:var(--muted);}
+  .stat b{color:var(--gold);font-weight:600;}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    max-width:1080px;
+    margin:28px auto 0;
+    padding:0 20px;
+    display:flex;
+    gap:28px;
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    font-weight:500;
+    padding:12px 2px 14px;
+    cursor:pointer;
+    white-space:nowrap;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    transition:color .15s ease;
+  }
+  nav.tabs button:hover{color:var(--text);}
+  nav.tabs button.active{
+    color:var(--text);
+    border-bottom-color:var(--gold);
+  }
+  nav.tabs button .count{
+    color:var(--gold-dim);
+    font-size:12px;
+    margin-left:4px;
+  }
+  nav.tabs button.active .count{color:var(--gold);}
+
+  /* ---------- Content ---------- */
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .empty{
+    border:1px dashed var(--border);
+    border-radius:var(--radius);
+    padding:40px 20px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .empty .big{font-size:28px;display:block;margin-bottom:10px;opacity:.5;}
+
+  /* Photo / Video grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:10px;
+  }
+  .tile{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--border);
+  }
+  .tile img,.tile video{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .tile .name{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:6px 8px;
+    font-size:11px;
+    color:#fff;
+    background:linear-gradient(transparent, rgba(0,0,0,.75));
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .tile .playbadge{
+    position:absolute;top:8px;right:8px;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:rgba(10,13,22,0.75);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold);
+    font-size:11px;
+  }
+
+  /* Audio list */
+  .audio-row{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 4px;
+    border-bottom:1px solid var(--border);
+  }
+  .audio-row:last-child{border-bottom:none;}
+  .audio-idx{
+    color:var(--gold-dim);
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    width:22px;flex-shrink:0;
+  }
+  .audio-meta{flex:1;min-width:0;}
+  .audio-meta .n{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .audio-meta .s{font-size:12px;color:var(--muted);}
+  .audio-row audio{
+    height:32px;
+    max-width:180px;
+  }
+
+  /* Code list */
+  .code-file{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    overflow:hidden;
+    background:var(--panel);
+  }
+  .code-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 14px;
+    cursor:pointer;
+    font-family:'SF Mono',ui-monospace,Menlo,monospace;
+    font-size:13px;
+  }
+  .code-head .path{color:var(--blue);}
+  .code-head .size{color:var(--muted);font-size:11px;}
+  .code-body{
+    display:none;
+    padding:14px;
+    border-top:1px solid var(--border);
+    background:var(--panel-2);
+    font-family:'SF Mono',ui-monospace,Menlo,monospace;
+    font-size:12.5px;
+    line-height:1.6;
+    color:#c9d1e0;
+    white-space:pre-wrap;
+    overflow-x:auto;
+  }
+  .code-file.open .code-body{display:block;}
+
+  footer{
+    max-width:1080px;margin:0 auto;padding:0 20px 40px;
+    color:var(--muted);font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="wordmark">KHOEM<span class="dash">—</span>AI <span style="font-size:.5em;color:var(--muted);font-weight:400;">Vault</span></p>
+  <p class="tagline">ថតឯកសារផ្ទាល់ខ្លួន — រូបថត វីដេអូ សំឡេង និងកូដ រៀបចំក្នុងកន្លែងតែមួយ</p>
+  <div class="stats">
+    <span class="stat"><b id="statPhotos">0</b> Photos</span>
+    <span class="stat"><b id="statVideos">0</b> Videos</span>
+    <span class="stat"><b id="statAudio">0</b> Audio</span>
+    <span class="stat"><b id="statCode">0</b> Code</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="photos" class="active">Photos <span class="count" id="cPhotos"></span></button>
+  <button data-tab="videos">Videos <span class="count" id="cVideos"></span></button>
+  <button data-tab="audio">Audio <span class="count" id="cAudio"></span></button>
+  <button data-tab="code">Code <span class="count" id="cCode"></span></button>
+</nav>
+
+<main>
+  <section class="panel active" id="panel-photos"><div class="grid" id="gridPhotos"></div></section>
+  <section class="panel" id="panel-videos"><div class="grid" id="gridVideos"></div></section>
+  <section class="panel" id="panel-audio"><div id="listAudio"></div></section>
+  <section class="panel" id="panel-code"><div id="listCode"></div></section>
+</main>
+
+<footer>KHOEM-AI Vault · ធ្វើបច្ចុប្បន្នភាពដោយស្វ័យប្រវត្តិពេល push ថ្មី</footer>
+
+<script>
+const CATEGORY_META = {
+  photos: { folder: 'photos', empty: '📷', emptyText: 'មិនទាន់មានរូបថត — ដាក់ចូល photos/ រួច push' },
+  videos: { folder: 'videos', empty: '🎬', emptyText: 'មិនទាន់មានវីដេអូ — ដាក់ចូល videos/ រួច push' },
+  audio:  { folder: 'audio',  empty: '🎵', emptyText: 'មិនទាន់មានសំឡេង — ដាក់ចូល audio/ រួច push' },
+  code:   { folder: 'code',   empty: '{ }', emptyText: 'មិនទាន់មានកូដ — ដាក់ចូល code/ រួច push' },
+};
+
+function fmtSize(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+function renderEmpty(container, cat){
+  const m = CATEGORY_META[cat];
+  container.innerHTML = `<div class="empty"><span class="big">${m.empty}</span>${m.emptyText}</div>`;
+}
+
+function renderPhotos(files){
+  const grid = document.getElementById('gridPhotos');
+  if(!files.length) return renderEmpty(grid,'photos');
+  grid.innerHTML = files.map(f => `
+    <div class="tile">
+      <img src="photos/${f.name}" loading="lazy" alt="${f.name}">
+      <div class="name">${f.name}</div>
+    </div>`).join('');
+}
+
+function renderVideos(files){
+  const grid = document.getElementById('gridVideos');
+  if(!files.length) return renderEmpty(grid,'videos');
+  grid.innerHTML = files.map(f => `
+    <div class="tile">
+      <video src="videos/${f.name}" preload="metadata" muted></video>
+      <div class="playbadge">▶</div>
+      <div class="name">${f.name}</div>
+    </div>`).join('');
+}
+
+function renderAudio(files){
+  const list = document.getElementById('listAudio');
+  if(!files.length) return renderEmpty(list,'audio');
+  list.innerHTML = files.map((f,i) => `
+    <div class="audio-row">
+      <span class="audio-idx">${String(i+1).padStart(2,'0')}</span>
+      <div class="audio-meta">
+        <div class="n">${f.name}</div>
+        <div class="s">${fmtSize(f.size||0)}</div>
+      </div>
+      <audio controls src="audio/${f.name}"></audio>
+    </div>`).join('');
+}
+
+function renderCode(files){
+  const list = document.getElementById('listCode');
+  if(!files.length) return renderEmpty(list,'code');
+  list.innerHTML = files.map((f,i) => `
+    <div class="code-file" id="code-${i}">
+      <div class="code-head" onclick="toggleCode(${i})">
+        <span class="path">${f.name}</span>
+        <span class="size">${fmtSize(f.size||0)}</span>
+      </div>
+      <div class="code-body" id="code-body-${i}">// ចុចម្តងទៀតដើម្បីលាក់ — ខ្លឹមសារពេញលេញនៅ code/${f.name}</div>
+    </div>`).join('');
+}
+
+function toggleCode(i){
+  document.getElementById('code-'+i).classList.toggle('open');
+}
+
+async function loadManifest(){
+  try{
+    const res = await fetch('manifest.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('no manifest');
+    const data = await res.json();
+
+    renderPhotos(data.photos||[]);
+    renderVideos(data.videos||[]);
+    renderAudio(data.audio||[]);
+    renderCode(data.code||[]);
+
+    document.getElementById('statPhotos').textContent = (data.photos||[]).length;
+    document.getElementById('statVideos').textContent = (data.videos||[]).length;
+    document.getElementById('statAudio').textContent = (data.audio||[]).length;
+    document.getElementById('statCode').textContent = (data.code||[]).length;
+    document.getElementById('cPhotos').textContent = (data.photos||[]).length || '';
+    document.getElementById('cVideos').textContent = (data.videos||[]).length || '';
+    document.getElementById('cAudio').textContent = (data.audio||[]).length || '';
+    document.getElementById('cCode').textContent = (data.code||[]).length || '';
+  }catch(e){
+    ['photos','videos','audio','code'].forEach(cat=>{
+      const el = document.querySelector(cat==='photos'?'#gridPhotos':cat==='videos'?'#gridVideos':cat==='audio'?'#listAudio':'#listCode');
+      renderEmpty(el, cat);
+    });
+  }
+}
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+loadManifest();
+</script>
+
+</body>
 </html>
