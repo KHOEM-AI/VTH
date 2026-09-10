@@ -204,13 +204,3 @@ Vault នេះជា **static, file-based personal archive** ដែលមិន
 
 *ឯកសារនេះសរសេរជា documentation reference ប៉ុណ្ណោះ — មិនមានកែ code ណាមួយក្នុង `index.html`, `generate-manifest.sh`, ឬ `deploy.yml` ដែលមានស្រាប់ទេ។*
 
-## ផ្នែក/សមាសភាគ (Component)ស្ថានភាព (Status)
-Auth / JWT / RBAC✅ មាន និងកំពុងប្រើ
-Devices GET✅ មាន
-Authorization engine✅ មាន
-Authorization service✅ មាន (មិនទាន់ wired ទៅ routes)
-Authorization API client✅ មាន
-AI routes✅ មានផ្នែកសំខាន់ៗ
-Billing✅ មាន
-Dashboard stats✅ មាន
-Safety / Audit / Gateway / Protocol✅ មាន GET endpoints
