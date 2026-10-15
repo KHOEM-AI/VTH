@@ -2387,3 +2387,41 @@ EOF
 node --check khmer.extra28.mjs && echo "syntax OK"
 
 
+cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
+node --input-type=module - <<'EOF'
+import fs from "fs";
+const f = "khmer.extra28.mjs", norm = (s) => s.trim().toLowerCase();
+const live = process.env.HOME + "/ai-project/AI/src/ai/khmer.mjs";
+const files = [...fs.readdirSync(".").filter((x) => /^khmer\.extra\d+[a-z]?\.mjs$/.test(x)), live].filter((x) => fs.existsSync(x));
+const seen = new Set();
+for (const x of files) for (const m of fs.readFileSync(x, "utf8").matchAll(/\[\s*"([^"\n]+)"\s*,/g)) m[1].split("|").forEach((a) => seen.add(norm(a)));
+const cand = [
+  ["ខ្ទឹមក្រហម", "ខ្ទឹមក្រហមជាបន្លែតូចមានរសជាតិហឹរផ្អែម ប្រើដាក់ម្ហូប និងធ្វើគ្រឿងសម្ងន់។"],
+  ["ខ្លាញ់ជ្រូក", "ខ្លាញ់ជ្រូកគឺខ្លាញ់ពីសត្វជ្រូក ប្រើចៀន ឬឆា។ ញ៉ាំកម្រិតសមរម្យ ដើម្បីសុខភាពបេះដូង។"],
+  ["ខ្ញុំសុំទោស", "«ខ្ញុំសុំទោស» មានន័យថា I'm sorry។ សុំទោសដោយស្មោះ ជួយជួសជុលទំនាក់ទំនង។"],
+  ["ខ្ញុំអរគុណ", "«ខ្ញុំអរគុណ» មានន័យថា thank you។ ពាក្យគួរសមដែលប្រើបានគ្រប់ពេល។"],
+  ["ខ្ញុំយល់ហើយ", "«ខ្ញុំយល់ហើយ» មានន័យថា I understand។ ប្រើពេលចាប់បានការពន្យល់។"],
+  ["ខ្ញុំមិនយល់", "«ខ្ញុំមិនយល់» មានន័យថា I don't understand។ អាចបន្ថែម «សូមពន្យល់ម្តងទៀត»។"],
+  ["ខ្ញុំវង្វេងផ្លូវ", "«ខ្ញុំវង្វេងផ្លូវ» មានន័យថា I'm lost។ សួរអ្នកនៅជិត ឬបើកផែនទីក្នុងទូរស័ព្ទ។"],
+  ["ខ្យល់អាកាស", "ខ្យល់អាកាសគឺខ្យល់ និងអាកាសធាតុជុំវិញយើង។ ពេលអាកាសកខ្វក់ ពាក់ម៉ាស់ការពារ។"],
+  ["ខ្សែក", "ខ្សែកគឺគ្រឿងលម្អពាក់ក្នុងក ធ្វើពីមាស ប្រាក់ ឬត្បូង។"],
+  ["ខ្មៅក្រមៅ", "«ខ្មៅក្រមៅ» មានន័យថាខ្មៅខ្លាំងណាស់។"],
+];
+let src = fs.readFileSync(f, "utf8");
+const cur = (await import("./" + f + "?t=" + Date.now())).EXTRA_ENTRIES_28.length;
+const add = [];
+for (const e of cand) {
+  if (cur + add.length >= 100) break;
+  const al = e[0].split("|").map(norm);
+  if (al.some((a) => seen.has(a))) continue;
+  al.forEach((a) => seen.add(a)); add.push(e);
+}
+const i = src.lastIndexOf("];");
+src = src.slice(0, i) + add.map((e) => "  " + JSON.stringify(e) + ",\n").join("") + src.slice(i);
+fs.writeFileSync(f, src);
+const n = (await import("./" + f + "?t=" + Date.now() + "b")).EXTRA_ENTRIES_28.length;
+console.log("បន្ថែម:", add.length, "| entries សរុប:", n);
+EOF
+node --check khmer.extra28.mjs && echo "syntax OK"
+
+
