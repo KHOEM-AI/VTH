@@ -1825,4 +1825,11 @@ for (const [k,a] of E) for (const key of k.split("|")) {
 console.log("entry:", E.length, "| ប្រើបាន:", live, "| ត្រូវបាំង:", shadow);
 '
 
+sed -i 's#\["ទៅព្រលានយន្តហោះ|ចេញដំណើរទៅព្រលានយន្តហោះមុនប៉ុន្មានម៉ោង"#["ព្រលានយន្តហោះគួរទៅមុនប៉ុន្មានម៉ោង|ចេញដំណើរទៅព្រលានយន្តហោះមុនប៉ុន្មានម៉ោង"#' src/ai/khmer.extra15.mjs
+grep -c 'ទៅព្រលានយន្តហោះ|ចេញដំណើរ' src/ai/khmer.extra15.mjs
+grep -n 'ការពារកម្តៅថ្ងៃ' src/ai/*.mjs | grep -v extra15 | cut -c1-140
+node --input-type=module -e '
+import { khmerReply } from "./src/ai/khmer.mjs";
+console.log(String(khmerReply("ការពារកម្តៅថ្ងៃ")).slice(0,120));
+'
 
