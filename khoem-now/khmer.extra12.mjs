@@ -2091,3 +2091,39 @@ console.log('extra45 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',
 NODE
 
 
+cd ~/ai-project
+set -o pipefail
+cp AI/src/ai/khmer.mjs ~/tmp/khmer.mjs.bak5
+cp ~/tmp/extra45.txt ~/tmp/extra45.txt.orig
+sed -i 's#\["មានបញ្ហាមេរោគស្មោកគ្រោក|ផ្ទះចេះតែកខ្វក់"#["មានបញ្ហាផ្ទះកខ្វក់|ផ្ទះកខ្វក់ញឹកញាប់"#; s#\["ជួយឱ្យមានភ្លៀងធ្លាក់ខ្លាំង|ភ្លៀងខ្លាំងធ្វើម៉េច"#["ភ្លៀងធ្លាក់ខ្លាំងធ្វើម៉េច|ភ្លៀងខ្លាំងធ្វើម៉េច"#' ~/tmp/extra45.txt
+echo "សំណល់ពាក្យចាស់ (ត្រូវតែ 0):" $(grep -c 'មេរោគស្មោកគ្រោក\|ជួយឱ្យមានភ្លៀង' ~/tmp/extra45.txt)
+
+node --input-type=module <<'NODE' && node --check AI/src/ai/khmer.mjs && echo "syntax OK" && (cd AI && npm test 2>&1 | tail -6) && git add AI/src/ai/khmer.mjs && git status --short && git commit -m "Add Khmer Q&A entries extra45 (11 entries)" && git push origin HEAD
+import fs from 'node:fs';
+import os from 'node:os';
+const file='AI/src/ai/khmer.mjs';
+const src=fs.readFileSync(file,'utf8').split('\n');
+const keys=new Set();
+src.forEach(l=>{const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));});
+const add=[];
+fs.readFileSync(os.homedir()+'/tmp/extra45.txt','utf8').split('\n').forEach(l=>{
+  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return;
+  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
+  if(ks.some(a=>keys.has(a))){console.log('រំលង (ជាន់):',m[1]);return;}
+  ks.forEach(a=>keys.add(a));
+  add.push(l);
+});
+let last=-1;
+src.forEach((l,i)=>{ if(/^\s*\["[^"]+"\s*,\s*".*"\],\s*$/.test(l)) last=i; });
+src.splice(last+1,0,...add);
+fs.writeFileSync(file,src.join('\n'));
+const where=new Map();
+src.forEach((l,i)=>{const m=l.match(/^\s*\["([^"]+)"/); if(!m) return;
+  m[1].split('|').map(a=>a.trim().toLowerCase()).forEach(k=>{
+    if(!where.has(k)) where.set(k,new Set()); where.get(k).add(i+1);});});
+const dk=[...where].filter(([k,s])=>s.size>1);
+console.log('បានបញ្ចូល:',add.length,'| ធាតុចុងនៅបន្ទាត់:',last+1+add.length,'| key សរុប:',where.size,'| key ស្ទួន:',dk.length);
+if(add.length!==11||dk.length){console.log('❌ មិនត្រូវតាមរំពឹង មិន commit');process.exit(1);}
+NODE
+
+  
