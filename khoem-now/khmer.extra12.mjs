@@ -139,32 +139,6 @@ export const EXTRA_ENTRIES_28 = [
   ["ខ្វាក់ភ្នែក", "ខ្វាក់ភ្នែកគឺមើលមិនឃើញ។ បើស្រាប់តែមើលមិនឃើញម្ខាង ឬព្រិលខ្លាំង សូមទៅពេទ្យភ្នែកបន្ទាន់។"],
   ["ខ្ញុំឃ្លាន|ខ្ញុំស្រេក", "«ខ្ញុំឃ្លាន» មានន័យថា I'm hungry ហើយ «ខ្ញុំស្រេក» មានន័យថា I'm thirsty។ បើចង់សួរគេ «បងឃ្លានទេ?»។"],
   ["ខ្ញុំឈឺ|ខ្ញុំមិនស្រួលខ្លួន", "«ខ្ញុំឈឺ» មានន័យថា I'm sick ឬ in pain។ បើអាសន្ន អាចនិយាយ «សូមជួយខ្ញុំ ខ្ញុំត្រូវការពេទ្យ» ហើយហៅ ១១៩។"],
-];
-EOF
-
-# ===== 4) ពិនិត្យ =====
-node --check khmer.extra28.mjs && echo "syntax OK"
-node check-dup-km.mjs khmer.extra28.mjs || { echo "ឈប់: មានជាន់ សូមមើលខាងលើ"; exit 1; }
-
-# ===== 5) merge batch 28 =====
-sed 's/EXTRA_ENTRIES_27/EXTRA_ENTRIES_28/g; s/khmer.extra27/khmer.extra28/; s/clean40/clean42/; s/clean41/clean43/; s/EXTRA 27/EXTRA 28/' merge27-km.mjs > merge28-km.mjs
-node merge28-km.mjs
-node dedupe-km.mjs khmer.clean43.mjs khmer.clean44.mjs
-node --check khmer.clean44.mjs && echo "syntax OK"
-node dup-km.mjs khmer.clean44.mjs | tail -3
-
-# ===== 6) deploy + test + GitHub =====
-cd ~/ai-project/AI
-cp src/ai/khmer.mjs ~/trash-khoem/khmer.mjs.backup-$(date +%H%M)
-cp ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages/khmer.clean44.mjs src/ai/khmer.mjs
-npx vitest run src/ai/__tests__/khmer.test.mjs src/ai/__tests__/khoem-commands.test.mjs src/ai/__tests__/languageCenter.test.mjs && cd ~/ai-project && git add AI/src/ai/khmer.mjs && git commit -m "khmer: merge batch 27 + letter ខ batch 1 (100 words)" && git push
-
-
-cd ~/ai-project/AI || exit 1
-mkdir -p ~/tmp ~/trash-khoem
-[ -e ~/tmp/extra41.mjs ] && { echo "ឈប់: extra41.mjs មានរួចហើយ"; exit 1; }
-cat > ~/tmp/extra41.mjs <<'EOF'
-export const EXTRA_ENTRIES_41 = [
   ["គ្រួសារ|ក្រុមគ្រួសារ", "គ្រួសារគឺក្រុមមនុស្សរស់នៅជាមួយគ្នា ដូចជាឪពុកម្តាយ និងកូន។ ការស្តាប់ និងគោរពគ្នា ជួយឱ្យគ្រួសារមានសុខសាន្ត។"],
   ["គ្រោះថ្នាក់", "គ្រោះថ្នាក់គឺអ្វីដែលអាចធ្វើឱ្យរបួស ឬខូចខាត។ បើមានគ្រោះថ្នាក់ សូមទៅទីមានសុវត្ថិភាព ហើយហៅជំនួយបន្ទាន់ ១១៩ ឬ ១១៧។"],
   ["គំនិត|គំនិតថ្មី", "គំនិតគឺអ្វីដែលយើងគិត។ សរសេរគំនិតទុកក្នុងសៀវភៅ ឬទូរស័ព្ទ ដើម្បីកុំឱ្យភ្លេច ហើយសាកល្បងជាគម្រោងតូចៗ។"],
@@ -247,60 +221,6 @@ export const EXTRA_ENTRIES_41 = [
   ["គ្មានទឹក|ទឹកអស់", "បើគ្មានទឹក ពិនិត្យម៉ាស៊ីនទឹក ប្រភពទឹក និងបំពង់។ បម្រុងទុកទឹកស្អាតសម្រាប់ផឹក ហើយដាំពុះបើមិនប្រាកដ។"],
   ["គ្មានភ្លើង|ភ្លើងដាច់", "បើភ្លើងដាច់ ពិនិត្យឌីសុងទ័រក្នុងផ្ទះមុន ហើយសួរអ្នកជិតខាង ឬអគ្គិសនីតំបន់។ ផ្តាច់ឧបករណ៍ធំៗ ដើម្បីជៀសខូចពេលភ្លើងត្រឡប់មក។"],
   ["គ្មានអ៊ីនធឺណិត|អ៊ីនធឺណិតដាច់", "បើគ្មានអ៊ីនធឺណិត បិទបើកទូរស័ព្ទ ឬរ៉ោតទ័រ ពិនិត្យទិន្នន័យ និង Wi-Fi ហើយទាក់ទងអ្នកផ្តល់សេវាបើនៅដាច់។"],
-];
-EOF
-node --check ~/tmp/extra41.mjs && echo "extra41 syntax OK" || exit 1
-
-B=~/trash-khoem/khmer.mjs.backup-$(date +%H%M%S)
-cp src/ai/khmer.mjs "$B" || exit 1
-echo "backup: $B"
-
-node --input-type=module <<'NODE'
-import fs from "node:fs";
-const H = process.env.HOME;
-const norm = (s) => s.trim().toLowerCase();
-const brainPath = "src/ai/khmer.mjs";
-const lines = fs.readFileSync(brainPath, "utf8").split("\n");
-const end = lines.indexOf("];");
-if (end < 0) { console.log("ឈប់: រក '];' មិនឃើញ"); process.exit(1); }
-const seen = new Set();
-for (const l of lines.slice(5, end)) {
-  const m = l.match(/^\s*\[\s*"([^"\n]+)"\s*,/);
-  if (m) m[1].split("|").forEach((a) => seen.add(norm(a)));
-}
-const mod = await import(H + "/tmp/extra41.mjs?t=" + Date.now());
-const keep = [], drop = [], own = new Set();
-for (const e of mod.EXTRA_ENTRIES_41) {
-  const al = e[0].split("|").map(norm);
-  if (al.some((a) => seen.has(a) || own.has(a))) { drop.push(e[0]); continue; }
-  al.forEach((a) => own.add(a));
-  keep.push(e);
-}
-console.log("សរុបក្នុង extra41:", mod.EXTRA_ENTRIES_41.length);
-console.log("ជាន់ (ដក):", drop.length, drop.join(" "));
-console.log("នឹងបញ្ចូល:", keep.length);
-if (keep.length === 0) { console.log("ឈប់: គ្មានអ្វីត្រូវបញ្ចូល"); process.exit(1); }
-lines.splice(end, 0, "  // ===== EXTRA 41 (គ batch 1) =====", ...keep.map((e) => "  " + JSON.stringify(e) + ","));
-fs.writeFileSync(brainPath, lines.join("\n"));
-NODE
-RC=$?
-
-if [ $RC -eq 0 ] && node --check src/ai/khmer.mjs && npx vitest run src/ai/__tests__/khmer.test.mjs src/ai/__tests__/khoem-commands.test.mjs src/ai/__tests__/languageCenter.test.mjs; then
-  echo "--- entry ក្រោយបញ្ចូល ---"
-  grep -c '^\s*\["' src/ai/khmer.mjs
-  cd ~/ai-project && git add AI/src/ai/khmer.mjs && git commit -m "khmer: add គ batch 1 (extra41)" && echo "✅ commit រួច (មិនទាន់ push) មើលលទ្ធផល រួចវាយ: git push"
-else
-  echo "❌ បរាជ័យ ស្តារត្រឡប់វិញ"
-  cp "$B" ~/ai-project/AI/src/ai/khmer.mjs
-  echo "ស្តារពី $B រួច"
-fi
-
-
-cd ~/ai-project/AI || exit 1
-mkdir -p ~/tmp
-[ -e ~/tmp/extra42.mjs ] && { echo "ឈប់: extra42.mjs មានរួចហើយ"; exit 1; }
-cat > ~/tmp/extra42.mjs <<'EOF'
-export const EXTRA_ENTRIES_42 = [
   ["នាឡិកា|នាឡិកាដៃ", "នាឡិកាប្រាប់ពេលវេលា។ មុនទិញ ពិនិត្យការធានា និងភាពធន់នឹងទឹក ហើយប្តូរថ្មតាមពេល។"],
   ["នាទី", "នាទីគឺ ៦០ វិនាទី ឬជាតួនាទី ភារកិច្ចរបស់មនុស្សម្នាក់ក្នុងក្រុម។ ឧ. «រង់ចាំ ៥ នាទី»។"],
   ["នាំ|នាំគ្នា", "«នាំ» មានន័យថាដឹកនាំ ឬយកទៅជាមួយ ឧ. «នាំកូនទៅសាលា»។ «នាំគ្នា» មានន័យថាធ្វើជាមួយគ្នា។"],
@@ -343,59 +263,6 @@ export const EXTRA_ENTRIES_42 = [
   ["នាំទៅមន្ទីរពេទ្យ|ជូនទៅមន្ទីរពេទ្យ", "បើមានអ្នកឈឺធ្ងន់ ហៅ ១១៩ ឬជូនទៅមន្ទីរពេទ្យភ្លាម ហើយនាំយកឯកសារ និងថ្នាំដែលកំពុងប្រើទៅជាមួយ។"],
   ["នាមត្រកូល|នាមខ្លួន", "នាមត្រកូលគឺឈ្មោះគ្រួសារ ហើយនាមខ្លួនគឺឈ្មោះផ្ទាល់ខ្លួន។ ជនជាតិខ្មែរនិយមសរសេរនាមត្រកូលមុន។"],
   ["នាមប័ណ្ណ|កាតឈ្មោះ", "នាមប័ណ្ណគឺកាតមានឈ្មោះ និងព័ត៌មានទំនាក់ទំនង។ ដាក់តែព័ត៌មានចាំបាច់ ហើយសរសេរឱ្យច្បាស់។"],
-];
-EOF
-node --check ~/tmp/extra42.mjs && echo "extra42 syntax OK" || { rm -f ~/tmp/extra42.mjs; exit 1; }
-
-B=~/tmp/khmer.mjs.bak
-cp src/ai/khmer.mjs "$B" || exit 1
-
-node --input-type=module <<'NODE'
-import fs from "node:fs";
-const H = process.env.HOME;
-const norm = (s) => s.trim().toLowerCase();
-const brainPath = "src/ai/khmer.mjs";
-const lines = fs.readFileSync(brainPath, "utf8").split("\n");
-const end = lines.indexOf("];");
-if (end < 0) { console.log("ឈប់: រក '];' មិនឃើញ"); process.exit(1); }
-const seen = new Set();
-for (const l of lines.slice(5, end)) {
-  const m = l.match(/^\s*\[\s*"([^"\n]+)"\s*,/);
-  if (m) m[1].split("|").forEach((a) => seen.add(norm(a)));
-}
-const mod = await import(H + "/tmp/extra42.mjs?t=" + Date.now());
-const keep = [], drop = [], own = new Set();
-for (const e of mod.EXTRA_ENTRIES_42) {
-  const al = e[0].split("|").map(norm);
-  if (al.some((a) => seen.has(a) || own.has(a))) { drop.push(e[0]); continue; }
-  al.forEach((a) => own.add(a));
-  keep.push(e);
-}
-console.log("សរុបក្នុង extra42:", mod.EXTRA_ENTRIES_42.length);
-console.log("ជាន់ (ដក):", drop.length, drop.join(" "));
-console.log("នឹងបញ្ចូល:", keep.length);
-if (keep.length === 0) { console.log("ឈប់: គ្មានអ្វីត្រូវបញ្ចូល"); process.exit(1); }
-lines.splice(end, 0, "  // ===== EXTRA 42 (ន batch 1) =====", ...keep.map((e) => "  " + JSON.stringify(e) + ","));
-fs.writeFileSync(brainPath, lines.join("\n"));
-NODE
-RC=$?
-
-if [ $RC -eq 0 ] && node --check src/ai/khmer.mjs && npx vitest run src/ai/__tests__/khmer.test.mjs src/ai/__tests__/khoem-commands.test.mjs src/ai/__tests__/languageCenter.test.mjs; then
-  grep -c '^\s*\["' src/ai/khmer.mjs
-  cd ~/ai-project && git add AI/src/ai/khmer.mjs && git commit -m "khmer: add ន batch 1 (extra42)" && echo "✅ commit រួច (មិនទាន់ push)"
-else
-  echo "❌ បរាជ័យ ស្តារត្រឡប់វិញ"
-  cp "$B" ~/ai-project/AI/src/ai/khmer.mjs
-fi
-rm -f "$B" ~/tmp/extra42.mjs
-
-
-
-cd ~/ai-project/AI || exit 1
-mkdir -p ~/tmp
-[ -e ~/tmp/extra43.mjs ] && { echo "ឈប់: extra43.mjs មានរួចហើយ"; exit 1; }
-cat > ~/tmp/extra43.mjs <<'EOF'
-export const EXTRA_ENTRIES_43 = [
   ["បាយ|ញ៉ាំបាយ", "បាយជាអាហារចម្បងរបស់ខ្មែរ។ ញ៉ាំឱ្យទៀងពេល ហើយបន្ថែមបន្លែ និងត្រីឬសាច់ឱ្យមានតុល្យភាព។"],
   ["បាយឆា", "បាយឆាគឺបាយចៀនជាមួយសាច់ និងបន្លែ។ ដើម្បីឱ្យឆ្ងាញ់ ប្រើបាយចាស់ត្រជាក់ ហើយឆាភ្លើងខ្លាំង។"],
   ["បាត់ទូរស័ព្ទ|បាត់ទូរសព្ទ", "បើបាត់ទូរស័ព្ទ ប្តូរពាក្យសម្ងាត់គណនីសំខាន់ៗ ចាក់សោពីចម្ងាយ ហៅក្រុមហ៊ុនបិទស៊ីម និងប្រាប់ធនាគារបើមានកម្មវិធីបង់ប្រាក់។"],
@@ -448,72 +315,6 @@ export const EXTRA_ENTRIES_43 = [
   ["ប្រៀបធៀប", "មុនសម្រេចចិត្ត ប្រៀបធៀបតម្លៃ គុណភាព និងការធានាពីច្រើនប្រភព។"],
   ["ប្រាប់", "«ប្រាប់» មានន័យថា tell ឧ. «ប្រាប់ខ្ញុំផង»។"],
   ["ប្រើប្រាស់", "«ប្រើប្រាស់» មានន័យថា use ឧ. «ប្រើប្រាស់ឱ្យមានប្រសិទ្ធភាព»។"],
-];
-EOF
-node --check ~/tmp/extra43.mjs && echo "extra43 syntax OK" || { rm -f ~/tmp/extra43.mjs; exit 1; }
-
-B=~/tmp/khmer.mjs.bak
-cp src/ai/khmer.mjs "$B" || exit 1
-
-node --input-type=module <<'NODE'
-import fs from "node:fs";
-const H = process.env.HOME;
-const norm = (s) => s.trim().toLowerCase();
-const brainPath = "src/ai/khmer.mjs";
-const lines = fs.readFileSync(brainPath, "utf8").split("\n");
-const end = lines.indexOf("];");
-if (end < 0) { console.log("ឈប់: រក '];' មិនឃើញ"); process.exit(1); }
-const seen = new Set();
-for (const l of lines.slice(5, end)) {
-  const m = l.match(/^\s*\[\s*"([^"\n]+)"\s*,/);
-  if (m) m[1].split("|").forEach((a) => seen.add(norm(a)));
-}
-const mod = await import(H + "/tmp/extra43.mjs?t=" + Date.now());
-const keep = [], drop = [], own = new Set();
-for (const e of mod.EXTRA_ENTRIES_43) {
-  const al = e[0].split("|").map(norm);
-  if (al.some((a) => seen.has(a) || own.has(a))) { drop.push(e[0]); continue; }
-  al.forEach((a) => own.add(a));
-  keep.push(e);
-}
-console.log("សរុបក្នុង extra43:", mod.EXTRA_ENTRIES_43.length);
-console.log("ជាន់ (ដក):", drop.length, drop.join(" "));
-console.log("នឹងបញ្ចូល:", keep.length);
-if (keep.length === 0) { console.log("ឈប់: គ្មានអ្វីត្រូវបញ្ចូល"); process.exit(1); }
-lines.splice(end, 0, "  // ===== EXTRA 43 (ប batch 1) =====", ...keep.map((e) => "  " + JSON.stringify(e) + ","));
-fs.writeFileSync(brainPath, lines.join("\n"));
-NODE
-RC=$?
-
-if [ $RC -eq 0 ] && node --check src/ai/khmer.mjs && npx vitest run src/ai/__tests__/khmer.test.mjs src/ai/__tests__/khoem-commands.test.mjs src/ai/__tests__/languageCenter.test.mjs; then
-  grep -c '^\s*\["' src/ai/khmer.mjs
-  cd ~/ai-project && git add AI/src/ai/khmer.mjs && git commit -m "khmer: add ប batch 1 (extra43)" && echo "✅ commit រួច (មិនទាន់ push)"
-else
-  echo "❌ បរាជ័យ ស្តារត្រឡប់វិញ"
-  cp "$B" ~/ai-project/AI/src/ai/khmer.mjs
-fi
-rm -f "$B" ~/tmp/extra43.mjs
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["សេរីភាព|សេរីភាពជាអ្វី","សេរីភាពគឺសិទ្ធិធ្វើ និយាយ ឬជ្រើសរើសអ្វីមួយដោយខ្លួនឯង ក្នុងកម្រិតដែលមិនបំពានសិទ្ធិអ្នកដទៃ និងស្របតាមច្បាប់។"],
 ["ប្រជាធិបតេយ្យ|ប្រជាធិបតេយ្យជាអ្វី","ប្រជាធិបតេយ្យគឺប្រព័ន្ធគ្រប់គ្រងដែលអំណាចមកពីប្រជាពលរដ្ឋ ជាធម្មតាតាមរយៈការបោះឆ្នោតដោយសេរី និងយុត្តិធម៌។"],
 ["អំពើពុករលួយ|ពុករលួយ","អំពើពុករលួយគឺការប្រើអំណាច ឬតួនាទីដើម្បីប្រយោជន៍ផ្ទាល់ខ្លួនដោយខុសច្បាប់ ដូចជាសំណូក ឬការកេងបន្លំ។ បើដឹងឃើញ អាចរាយការណ៍ទៅស្ថាប័នពាក់ព័ន្ធ។"],
@@ -547,69 +348,6 @@ const NEW = [
 ["អ្នកនាំពាក្យ","អ្នកនាំពាក្យគឺអ្នកដែលតំណាងស្ថាប័ន ឬអង្គការក្នុងការថ្លែងព័ត៌មានជាផ្លូវការ។"],
 ["ទូទាំង|ទូទាំងប្រទេស","«ទូទាំង» មានន័យថាគ្រប់កន្លែងក្នុងតំបន់ ឧ. «ទូទាំងប្រទេស» «ទូទាំងពិភពលោក»។"],
 ["ទទួលស្គាល់","«ទទួលស្គាល់» មានន័យថាព្រមទទួលថាពិត ឬត្រឹមត្រូវ ឧ. ទទួលស្គាល់កំហុស ទទួលស្គាល់ការរួមចំណែក។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node "$T" "$R/$F" || restore
-echo "--- test/typecheck ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-if node -e 'process.exit((require("./package.json").scripts||{}).test?0:1)' 2>/dev/null; then
-  npm test --silent 2>&1 | tail -12; [ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-else echo "មិនមាន script test ក្នុង localization (មិនទាន់ផ្ទៀងផ្ទាត់)"; fi
-if node -e 'process.exit((require("./package.json").scripts||{}).typecheck?0:1)' 2>/dev/null; then
-  npm run typecheck --silent 2>&1 | tail -8; [ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-fi
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add 33 vocabulary entries to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["សង្គម|សង្គមជាអ្វី","សង្គមគឺក្រុមមនុស្សដែលរស់នៅរួមគ្នា មានវប្បធម៌ ច្បាប់ និងទំនាក់ទំនងទៅវិញទៅមក។"],
 ["សមាជិក","សមាជិកគឺអ្នកដែលចូលរួមជាផ្នែកមួយនៃក្រុម អង្គការ ឬស្ថាប័ន ដូចជាសមាជិកគ្រួសារ ឬសមាជិកក្លឹប។"],
 ["សេដ្ឋកិច្ច|សេដ្ឋកិច្ចជាអ្វី","សេដ្ឋកិច្ចគឺប្រព័ន្ធផលិត លក់ដូរ និងប្រើប្រាស់ទំនិញ និងសេវាក្នុងប្រទេស។ កសិកម្ម កាត់ដេរ និងទេសចរណ៍ជាវិស័យសំខាន់របស់កម្ពុជា។"],
@@ -641,65 +379,6 @@ const NEW = [
 ["ទីផ្សារ","ទីផ្សារគឺកន្លែង ឬប្រព័ន្ធដែលអ្នកលក់ និងអ្នកទិញជួបគ្នា។ ស្វែងយល់តម្លៃទីផ្សារមុនកំណត់តម្លៃលក់។"],
 ["ទិន្នន័យ|ទិន្នន័យជាអ្វី","ទិន្នន័យគឺព័ត៌មានដែលប្រមូល និងរក្សាទុក ដូចជាលេខ អត្ថបទ រូបភាព។ ត្រូវបម្រុងទុក និងការពារទិន្នន័យផ្ទាល់ខ្លួន។"],
 ["ទស្សនៈ","ទស្សនៈគឺរបៀបមើល ឬគំនិតអំពីរឿងណាមួយ។ មនុស្សអាចមានទស្សនៈខុសគ្នា ហើយអាចគោរពគ្នាបាន។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 2 to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["មនុស្ស|មនុស្សជាអ្វី","មនុស្សគឺសត្វដែលមានប្រាជ្ញា អាចគិត និយាយ និងរស់នៅជាសង្គម។ មនុស្សគ្រប់រូបមានសិទ្ធិ និងសេចក្តីថ្លៃថ្នូរស្មើគ្នា។"],
 ["មន្ទីរពេទ្យ|ទៅមន្ទីរពេទ្យ","មន្ទីរពេទ្យគឺកន្លែងព្យាបាលជំងឺ។ បើមានអាសន្ន សូមហៅ ១១៩។ ពេលទៅ សូមយកអត្តសញ្ញាណប័ណ្ណ និងប្រាប់រោគសញ្ញាឱ្យច្បាស់។"],
 ["មន្ត្រី","មន្ត្រីគឺអ្នកបម្រើការងាររដ្ឋ ឬស្ថាប័ន ដូចជាមន្ត្រីរាជការ ឬមន្ត្រីសុខាភិបាល។"],
@@ -740,65 +419,6 @@ const NEW = [
 ["កំណែទម្រង់","កំណែទម្រង់គឺការកែប្រែប្រព័ន្ធ ឬច្បាប់ឱ្យប្រសើរឡើង ដូចជាកំណែទម្រង់ការអប់រំ។"],
 ["កិច្ចព្រមព្រៀង","កិច្ចព្រមព្រៀងគឺការយល់ព្រមរវាងភាគីពីរ ឬច្រើន។ គួរសរសេរជាលាយលក្ខណ៍អក្សរ និងអានលក្ខខណ្ឌឱ្យច្បាស់មុនចុះហត្ថលេខា។"],
 ["កសិកម្ម|វិស័យកសិកម្ម","កសិកម្មគឺការដាំដំណាំ និងចិញ្ចឹមសត្វ ជាវិស័យសំខាន់របស់កម្ពុជា។ ស្រូវជាដំណាំចម្បង។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 3 to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["ខ្មែរ","ខ្មែរគឺជនជាតិ ភាសា និងវប្បធម៌របស់កម្ពុជា។ ភាសាខ្មែរសរសេរពីឆ្វេងទៅស្តាំ ហើយមានព្យញ្ជនៈ និងស្រៈច្រើន។"],
 ["ខ្លាំង","«ខ្លាំង» មានន័យថាមានកម្លាំងច្រើន ឬមានកម្រិតខ្ពស់ ឧ. ខ្យល់ខ្លាំង សំឡេងខ្លាំង។ ការហាត់ប្រាណជាប្រចាំជួយឱ្យរាងកាយខ្លាំងឡើង។"],
 ["ខ្ពស់","«ខ្ពស់» មានន័យថាមានកម្ពស់ ឬកម្រិតលើសធម្មតា ឧ. ភ្នំខ្ពស់ តម្លៃខ្ពស់។ ការកំណត់គោលដៅខ្ពស់ត្រូវមានផែនការជាជំហានៗ។"],
@@ -850,66 +470,6 @@ const NEW = [
 ["គ្រុន","គ្រុនគឺអាការៈក្តៅខ្លួនជាងធម្មតា។ ផឹកទឹកឱ្យគ្រប់ សម្រាក ហើយបើក្តៅខ្លាំង ឬមិនថយ សូមជួបគ្រូពេទ្យ។ ខ្ញុំមិនមែនគ្រូពេទ្យទេ។"],
 ["គតិ","គតិគឺផ្លូវគំនិត ឬទស្សនៈក្នុងជីវិត ដូចជាគតិធម៌។ គតិល្អជួយឱ្យសម្រេចចិត្តសមរម្យ។"],
 ["គុណវុឌ្ឍិ","គុណវុឌ្ឍិគឺកម្រិតសិក្សា ឬសញ្ញាបត្រដែលទទួលបាន។ វាបង្ហាញជំនាញ ប៉ុន្តែការអនុវត្តជាក់ស្តែងក៏សំខាន់ដែរ។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node --check "$T" || { echo "❌ script មានកំហុស syntax (data.ts មិនប៉ះពាល់)"; rm -f "$BAK" "$T"; exit 1; }
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 5 (ខ គ) to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["ឃាត់","ឃាត់គឺការហាមឃាត់ ឬទប់ស្កាត់មិនឱ្យធ្វើអ្វីមួយ។ បើឃើញគ្រោះថ្នាក់ សូមហៅជំនួយជាមុន មិនត្រូវប្រថុយខ្លួន។"],
 ["ឃ្លា","ឃ្លាគឺពាក្យច្រើនបន្តគ្នាមានអត្ថន័យ ប៉ុន្តែមិនទាន់ពេញប្រយោគ ឧ. «នៅលើតុ»។ ការសរសេរឃ្លាខ្លីៗជួយឱ្យអត្ថបទងាយអាន។"],
 ["ឃ្លាំង","ឃ្លាំងគឺកន្លែងស្តុកទំនិញ ឬរបស់របរ។ រៀបចំឃ្លាំងឱ្យមានបញ្ជី ដាក់ស្លាក និងប្រយ័ត្នភ្លើងឆេះ។"],
@@ -939,76 +499,6 @@ const NEW = [
 ["ញើស","ញើសគឺទឹកដែលចេញពីស្បែកពេលក្តៅ ឬហាត់ប្រាណ។ ផឹកទឹកឱ្យគ្រប់ ហើយងូតទឹកសម្អាតខ្លួន។"],
 ["ញាក់","ញាក់គឺអារម្មណ៍ត្រជាក់ញ័រ ឬញ័រស្បែក។ បើញាក់ជាមួយគ្រុនខ្លាំង សូមជួបគ្រូពេទ្យ។"],
 ["ញែក","ញែកគឺបំបែកចេញពីគ្នា ឧ. ញែកកាកសំណល់តាមប្រភេទ។ ការញែកកាកសំណល់ជួយបរិស្ថាន។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node --check "$T" || { echo "❌ script មានកំហុស syntax (data.ts មិនប៉ះពាល់)"; rm -f "$BAK" "$T"; exit 1; }
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 6 (ឃ ង ញ) to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-cd $HOME/KHOEM_AI/KHOEM_AI && node -e '
-const fs=require("fs");const f="localization/src/khmer/data.ts";
-let s=fs.readFileSync(f,"utf8");
-const a="ញញឹមគឺការញាក់បបូរមាត់ ឬមុខជាសញ្ញារីករាយ ឬគួរសម។";
-const b="ញញឹមគឺការលើកជ្រុងបបូរមាត់ឡើងបន្តិច ជាសញ្ញារីករាយ ឬគួរសម។";
-const n=s.split(a).length-1;
-if(n!==1){console.log("រកឃើញ",n,"កន្លែង (ត្រូវមាន 1) - ឈប់");process.exit(1);}
-fs.writeFileSync(f,s.replace(a,b));console.log("កែរួច");
-' && cd localization && npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)" && cd .. \
-&& git -C "$HOME/KHOEM_AI" commit -q -m "khmer: fix wording of ញញឹម" -- KHOEM_AI/localization/src/khmer/data.ts && git -C "$HOME/KHOEM_AI" log --oneline -1
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["ឆ្នេរ","ឆ្នេរគឺដីរាបស្មើក្បែរសមុទ្រ ឬទន្លេ ដែលមានខ្សាច់។ ពេលទៅលេង សូមប្រយ័ត្នរលក ពាក់អាវសង្គ្រោះ និងកុំទុកសំរាម។"],
 ["ឆ្នូត","ឆ្នូតគឺបន្ទាត់វែងៗលើផ្ទៃ ដូចជាឆ្នូតខ្លា ឬអាវឆ្នូត។"],
 ["ឆ្លង","«ឆ្លង» មានន័យថាឆ្លងកាត់ ឬចម្លងពីម្នាក់ទៅម្នាក់ ដូចជាជំងឺឆ្លង។ លាងដៃឱ្យស្អាត ហើយពាក់ម៉ាស់ពេលមានជំងឺឆ្លង។"],
@@ -1063,66 +553,6 @@ const NEW = [
 ["វាសនា","វាសនាគឺជោគវាសនា ឬអ្វីដែលគេជឿថាកំណត់ជីវិត។ ប៉ុន្តែការខំប្រឹងប្រែងក៏ជួយបង្កើតអនាគតដែរ។"],
 ["វិទ្យុ","វិទ្យុគឺឧបករណ៍ទទួលសំឡេងតាមរលកអគ្គិសនី។ ប្រើស្តាប់ព័ត៌មាន ភ្លេង និងការប្រកាសអាសន្ន។"],
 ["វិជ្ជមាន","វិជ្ជមានគឺល្អ ឬមានផលល្អ ឧ. គំនិតវិជ្ជមាន។ គិតវិជ្ជមានមិនមែនបដិសេធបញ្ហាទេ តែជួយរកដំណោះស្រាយ។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node --check "$T" || { echo "❌ script មានកំហុស syntax (data.ts មិនប៉ះពាល់)"; rm -f "$BAK" "$T"; exit 1; }
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 7 (ឆ ឈ ដ យ វ) to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["ថ្នល់","ថ្នល់គឺផ្លូវធំសម្រាប់យានយន្ត និងមនុស្សធ្វើដំណើរ។ ពេលឆ្លងថ្នល់ សូមមើលឆ្វេងស្តាំ និងប្រើកន្លែងឆ្លង។"],
 ["ថ្លឹង","ថ្លឹងគឺការវាស់ទម្ងន់ ឬពិចារណាឱ្យស្មើគ្នា ឧ. ថ្លឹងទំនិញ ថ្លឹងជម្រើស។ មុនសម្រេចចិត្តរឿងធំ សូមថ្លឹងគុណសម្បត្តិ និងគុណវិបត្តិ។"],
 ["ថ្លើម","ថ្លើមគឺសរីរាង្គក្នុងពោះ ដែលជួយបំបែកសារធាតុ និងសម្អាតឈាម។ ថែថ្លើមដោយកុំផឹកស្រាច្រើន ហើយហូបអាហារមានជីវជាតិ។ បើមានរោគសញ្ញាខុសប្រក្រតី សូមជួបគ្រូពេទ្យ។"],
@@ -1183,66 +613,6 @@ const NEW = [
 ["និស្សិត","និស្សិតគឺអ្នកសិក្សានៅមហាវិទ្យាល័យ ឬសាកលវិទ្យាល័យ។ និស្សិតគួរគ្រប់គ្រងពេល ការសិក្សា និងសុខភាពឱ្យមានតុល្យភាព។"],
 ["និយមន័យ","និយមន័យគឺអត្ថន័យនៃពាក្យ ឬគំនិតមួយ។ ពេលសរសេរ ឬរៀន សូមពិនិត្យនិយមន័យឱ្យច្បាស់។"],
 ["និមិត្តសញ្ញា","និមិត្តសញ្ញាគឺរូប ឬសញ្ញាតំណាងឱ្យអ្វីមួយ ដូចជាទង់ជាតិ ឬឡូហ្គោ។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node --check "$T" || { echo "❌ script មានកំហុស syntax (data.ts មិនប៉ះពាល់)"; rm -f "$BAK" "$T"; exit 1; }
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 8 (ថ ទ ធ ន) to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-bash -s <<'OUTER'
-R=$HOME/KHOEM_AI/KHOEM_AI
-F=localization/src/khmer/data.ts
-cd "$R" || { echo "ឈប់: រកថតមិនឃើញ"; exit 1; }
-[ -f "$F" ] || { echo "ឈប់: រកមិនឃើញ $F"; exit 1; }
-BAK=$HOME/.data-km.bak-$$
-T=$HOME/km-add-tmp.mjs
-cp "$F" "$BAK" || { echo "ឈប់: backup មិនបាន"; exit 1; }
-restore() { cp "$BAK" "$F"; rm -f "$BAK" "$T"; echo "❌ ស្តារ data.ts វិញហើយ"; exit 1; }
-
-cat > "$T" <<'EOF'
-import fs from "node:fs";
-const file = process.argv[2];
-const src = fs.readFileSync(file, "utf8");
-const i = src.indexOf("= [") + 2, j = src.lastIndexOf("]") + 1;
-const old = JSON.parse(src.slice(i, j));
-const norm = (s) => s.trim().toLowerCase();
-const have = new Set(old.flatMap(([k]) => k.split("|").map(norm)));
-const NEW = [
 ["បទពិសោធន៍","បទពិសោធន៍គឺចំណេះដឹង ឬជំនាញដែលទទួលបានពីការធ្វើ និងការជួបប្រទះផ្ទាល់។ បទពិសោធន៍ល្អ ឬអាក្រក់ ជួយឱ្យយើងរៀន និងសម្រេចចិត្តបានប្រសើរ។"],
 ["បទល្មើស","បទល្មើសគឺអំពើដែលរំលោភច្បាប់ ហើយអាចត្រូវទទួលទោស។ បើជួបបទល្មើស សូមរាយការណ៍ប៉ូលិស ១១៧ ហើយរក្សាសុវត្ថិភាពខ្លួនមុនគេ។"],
 ["បន្ទប់","បន្ទប់គឺកន្លែងមានជញ្ជាំងព័ទ្ធជុំវិញក្នុងផ្ទះ ឬអគារ ដូចជាបន្ទប់គេង បន្ទប់ទឹក។ រក្សាបន្ទប់ឱ្យស្អាត និងមានខ្យល់ចេញចូលល្អ។"],
@@ -1297,50 +667,6 @@ const NEW = [
 ["ភ្ញាក់ផ្អើល","ភ្ញាក់ផ្អើលគឺអារម្មណ៍ភ្ញាក់ឡើងភ្លាមពីរឿងមិនបានរំពឹង។ ជួនកាលជាសំណាងល្អ ជួនកាលអាក្រក់។"],
 ["ភូមិ","ភូមិគឺសហគមន៍តូចមួយក្នុងជនបទ ក្រោមឃុំ។ ភូមិមួយៗមានអ្នកភូមិ និងអាជ្ញាធរភូមិដែលជួយបម្រើសេវា។"],
 ["ភេសជ្ជៈ","ភេសជ្ជៈគឺរបស់ផឹក ដូចជាទឹកផ្លែឈើ តែ កាហ្វេ។ ជ្រើសភេសជ្ជៈដែលមិនមានស្ករច្រើន ហើយផឹកទឹកស្អាតឱ្យគ្រប់។"],
-];
-const seen = new Set(), add = [], dropped = [];
-for (const [k, a] of NEW) {
-  const keep = [];
-  for (const al of k.split("|")) {
-    const n = norm(al);
-    if ([...n].length < 3 || n === "ខ្ញុំ" || have.has(n) || seen.has(n)) { dropped.push(al); continue; }
-    seen.add(n); keep.push(al);
-  }
-  if (keep.length && a.trim()) add.push([keep.join("|"), a]);
-}
-console.log("ស្នើ:", NEW.length, "| បន្ថែមបាន:", add.length, "| key ជាន់/ស្ទួន (ដកចេញ):", dropped.length, dropped.join(" "));
-if (!add.length) { console.log("គ្មានអ្វីត្រូវបន្ថែម"); process.exit(0); }
-if (src[j - 2] !== "]") { console.log("ឈប់: រចនាសម្ព័ន្ធ data.ts មិនដូចរំពឹង"); process.exit(2); }
-const out = src.slice(0, j - 1) + "," + add.map((e) => JSON.stringify(e)).join(",") + src.slice(j - 1);
-fs.writeFileSync(file, out);
-const re = fs.readFileSync(file, "utf8");
-const arr = JSON.parse(re.slice(re.indexOf("= [") + 2, re.lastIndexOf("]") + 1));
-let ok = arr.length === old.length + add.length;
-for (let n = 0; n < old.length; n++) if (JSON.stringify(arr[n]) !== JSON.stringify(old[n])) { ok = false; break; }
-const keys = new Set(arr.flatMap(([k]) => k.split("|").map(norm)));
-for (const [k] of add) for (const al of k.split("|")) if (!keys.has(norm(al))) ok = false;
-console.log("entries មុន:", old.length, "→ ក្រោយ:", arr.length, "| ផ្ទៀងផ្ទាត់:", ok ? "ជាប់" : "បរាជ័យ");
-process.exit(ok ? 0 : 3);
-EOF
-
-node --check "$T" || { echo "❌ script មានកំហុស syntax (data.ts មិនប៉ះពាល់)"; rm -f "$BAK" "$T"; exit 1; }
-node "$T" "$R/$F" || restore
-echo "--- test ---"
-cd "$R/localization" 2>/dev/null || cd "$R"
-npm test --silent 2>&1 | grep -E "^ℹ (tests|pass|fail)"
-[ "${PIPESTATUS[0]}" = 0 ] || { cd "$R"; restore; }
-cd "$R"
-git -C "$HOME/KHOEM_AI" add KHOEM_AI/localization/src/khmer/data.ts
-git -C "$HOME/KHOEM_AI" commit -q -m "khmer: add vocabulary batch 9 (ប ផ ព ភ) to data.ts (no duplicates)" -- KHOEM_AI/localization/src/khmer/data.ts \
-  && git -C "$HOME/KHOEM_AI" log --oneline -1 || restore
-rm -f "$BAK" "$T"
-echo "✅ រួច (commit មិនទាន់ push)"
-OUTER
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra40.mjs <<'EOF'
-export const EXTRA_ENTRIES_40 = [
   ["ផ្ទះជួល","«ផ្ទះជួល» មុនជួល សូមមើលផ្ទះ អានកិច្ចសន្យា និងសួរប្រាក់កក់ ថ្លៃទឹកភ្លើង ហើយទុកបង្កាន់ដៃរាល់ពេលបង់ប្រាក់។"],
   ["ផ្ទះលេច","«ផ្ទះលេច» ពិនិត្យដំបូល និងបំពង់ទឹក ជួសជុលមុនរដូវភ្លៀង។ បើខ្ពស់គ្រោះថ្នាក់ សូមហៅជាងជំនាញ។"],
   ["ផ្សារទំនើប","«ផ្សារទំនើប» ប្រៀបធៀបតម្លៃ ពិនិត្យថ្ងៃផុតកំណត់ និងទុកបង្កាន់ដៃ។"],
@@ -1402,15 +728,6 @@ export const EXTRA_ENTRIES_40 = [
   ["មេរៀន","«មេរៀន» រៀនតិចៗញឹកញាប់ ហើយពន្យល់ដោយពាក្យខ្លួនឯងដើម្បីចាំបានយូរ។"],
   ["មុខរបរ","«មុខរបរ» ចាប់ផ្តើមតូច កត់ចំណូលចំណាយ ហើយកុំលាយលុយហាងជាមួយលុយផ្ទាល់ខ្លួន។"],
   ["មូស","«មូស» ការពារដោយដេកក្នុងមុង ស្លៀកដៃវែង និងកម្ចាត់ទឹកដក់ ដើម្បីកាត់បន្ថយគ្រុនឈាម។"],
-];
-EOF
-node -e 'import("./khmer.extra40.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_40.length))'
-grep -c '^  \["' khmer.extra40.mjs
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra41.mjs <<'EOF'
-export const EXTRA_ENTRIES_41 = [
   ["យានយន្តខូច","«យានយន្តខូច» ចតក្នុងកន្លែងសុវត្ថិភាព បើកភ្លើងសញ្ញា ហើយហៅជាង ឬជំនួយតាមផ្លូវ។"],
   ["យកថ្នាំទៅពេទ្យ","«យកថ្នាំទៅពេទ្យ» នាំថ្នាំដែលកំពុងប្រើទៅជាមួយ ដើម្បីឱ្យគ្រូពេទ្យដឹងច្បាស់។"],
   ["យំមិនឈប់","«យំមិនឈប់» ចំពោះទារក ត្រូវពិនិត្យឃ្លាន ទទឹក ក្តៅ ត្រជាក់ ហើយបើមានគ្រុន ឬមើលខុសធម្មតា សូមទៅពេទ្យ។"],
@@ -1466,15 +783,6 @@ export const EXTRA_ENTRIES_41 = [
   ["វត្តអារាម","«វត្តអារាម» ពេលចូល ស្លៀកពាក់សមរម្យ ដោះស្បែកជើង និងនិយាយតិចៗ។"],
   ["វាសនា","«វាសនា» ក៏ត្រូវការការខិតខំ។ ជំហានតូចៗរាល់ថ្ងៃកែប្រែអនាគត។"],
   ["វ៉ែនតា","«វ៉ែនតា» បើមើលមិនច្បាស់ ឬឈឺក្បាលពេលអាន សូមពិនិត្យភ្នែកនៅអ្នកជំនាញ។"],
-];
-EOF
-node -e 'import("./khmer.extra41.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_41.length))'
-grep -c '^  \["' khmer.extra41.mjs
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra42.mjs <<'EOF'
-export const EXTRA_ENTRIES_42 = [
   ["សុវត្ថិភាពលើអ៊ីនធឺណិត","«សុវត្ថិភាពលើអ៊ីនធឺណិត» ប្រើពាក្យសម្ងាត់ខ្លាំង បើកការផ្ទៀងផ្ទាត់ពីរជំហាន ហើយកុំចុចតំណដែលមិនស្គាល់។"],
   ["សុខភាពផ្លូវចិត្ត","«សុខភាពផ្លូវចិត្ត» សំខាន់ដូចសុខភាពរាងកាយ។ សម្រាក និយាយជាមួយអ្នកទុកចិត្ត ហើយបើធ្ងន់ សូមស្វែងរកអ្នកជំនាញ។"],
   ["សុភមង្គល","«សុភមង្គល» កើតពីទំនាក់ទំនងល្អ សុខភាព និងការអរគុណរាល់ថ្ងៃ។"],
@@ -1545,15 +853,6 @@ export const EXTRA_ENTRIES_42 = [
   ["អំណោយ","«អំណោយ» ល្អមិនចាំបាច់ថ្លៃ។ គិតពីអ្វីដែលអ្នកទទួលចូលចិត្ត។"],
   ["អំពើហិង្សា","«អំពើហិង្សា» មិនអាចទទួលយកបានទេ។ បើមានគ្រោះថ្នាក់ សូមហៅ ១១៧។"],
   ["អំបិលអ៊ីយ៉ូត","«អំបិលអ៊ីយ៉ូត» ជួយការពារជំងឺក្រពេញទីរ៉ូអ៊ីត។ ប៉ុន្តែប្រើក្នុងកម្រិតសមរម្យ។"],
-];
-EOF
-node -e 'import("./khmer.extra42.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_42.length))'
-grep -c '^  \["' khmer.extra42.mjs
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra43.mjs <<'EOF'
-export const EXTRA_ENTRIES_43 = [
   ["របៀបសរសេរកូដស្អាត","«កូដស្អាត» ប្រើឈ្មោះអថេរច្បាស់ ចែកមុខងារតូចៗ និងសរសេរមតិយោបល់តែកន្លែងចាំបាច់។"],
   ["របៀប commit ល្អ","«commit ល្អ» ធ្វើតូចៗ មានសារច្បាស់ថាបានកែអ្វី និងរត់តេស្តមុន push។"],
   ["របៀបរក bug","«រក bug» ចម្លងកំហុសឱ្យកើតម្តងទៀត អានសារកំហុសបន្ទាត់ដំបូង ហើយសាកល្បងកែម្តងមួយចំណុច។"],
@@ -1601,15 +900,6 @@ export const EXTRA_ENTRIES_43 = [
   ["ស្ម័គ្រចិត្ត","«ស្ម័គ្រចិត្ត» ជួយសហគមន៍តាមជំនាញ និងពេលវេលា។ ជ្រើសស្ថាប័នទុកចិត្តបាន។"],
   ["វត្តមាន","«វត្តមាន» ពេលសិក្សា ឬធ្វើការ ជួយបង្កើតទំនុកចិត្ត។ បើអវត្តមាន ជូនដំណឹងជាមុន។"],
   ["ចែករំលែកព័ត៌មាន","«ចែករំលែកព័ត៌មាន» ពិនិត្យប្រភព និងកាលបរិច្ឆេទ មុនចែក ហើយកុំចែកអ្វីដែលមិនប្រាកដ។"],
-];
-EOF
-node -e 'import("./khmer.extra43.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_43.length))'
-grep -c '^  \["' khmer.extra43.mjs
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra44.mjs <<'EOF'
-export const EXTRA_ENTRIES_44 = [
   ["ម្ហូបខ្មែរល្បី","«ម្ហូបខ្មែរល្បី» មានអាម៉ុក សម្លម្ជូរគ្រឿង ឡុកឡាក់ នំបញ្ចុក និងគុយទាវ។"],
   ["បាយសម្លរ","«បាយសម្លរ» ជាអាហារគ្រួសារខ្មែរ។ ជ្រើសបន្លែច្រើន និងកាត់បន្ថយអំបិល។"],
   ["សម្លប្រហើរ","«សម្លប្រហើរ» ជាម្ហូបខ្មែរមានបន្លែច្រើនប្រភេទ និងប្រហុក ឬត្រី។ ចម្អិនឱ្យឆ្អិនល្អ។"],
@@ -1659,15 +949,6 @@ export const EXTRA_ENTRIES_44 = [
   ["កិច្ចសហប្រតិបត្តិការ","«សហប្រតិបត្តិការ» ត្រូវមានកិច្ចសន្យាជាលាយលក្ខណ៍អក្សរ និងចែកការទទួលខុសត្រូវច្បាស់។"],
   ["អ្នកទិញមិនបង់លុយ","«អ្នកទិញមិនបង់» ទុកភស្តុតាង ទាក់ទងដោយគួរសម ហើយសួរអាជ្ញាធរ ឬមេធាវីបើចាំបាច់។"],
   ["ភាសាអង់គ្លេសការងារ","«អង់គ្លេសការងារ» រៀនពាក្យអ៊ីមែល កិច្ចប្រជុំ និងសម្ភាសន៍ ហើយហាត់ជាប្រចាំ។"],
-];
-EOF
-node -e 'import("./khmer.extra44.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_44.length))'
-grep -c '^  \["' khmer.extra44.mjs
-
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra45.mjs <<'EOF'
-export const EXTRA_ENTRIES_45 = [
   ["ធ្វើអ៊ីមែលឱ្យល្អ","«អ៊ីមែលល្អ» មានប្រធានបទច្បាស់ ខ្លឹមសារខ្លី ពាក្យគួរសម និងចុះឈ្មោះខ្លួនពេលបញ្ចប់។"],
   ["កិច្ចប្រជុំអនឡាញ","«ប្រជុំអនឡាញ» ពិនិត្យមីក្រូហ្វូន និងអ៊ីនធឺណិតជាមុន ហើយបិទសំឡេងពេលមិននិយាយ។"],
   ["ធ្វើបទបង្ហាញ","«បទបង្ហាញ» ត្រូវមានចំណុចសំខាន់តិចៗ រូបភាពច្បាស់ ហើយហាត់និយាយជាមុន។"],
@@ -1705,14 +986,6 @@ export const EXTRA_ENTRIES_45 = [
   ["ជីវិតក្រោយនិវត្តន៍","«និវត្តន៍» រក្សាសកម្មភាព មិត្តភក្តិ និងសុខភាព ហើយរៀបចំថវិកាជាមុន។"],
   ["សួរសុខទុក្ខ","«សួរសុខទុក្ខ» ជាវប្បធម៌ខ្មែរ។ ការហៅទូរស័ព្ទខ្លីៗក៏មានតម្លៃដល់អ្នកដែលនៅឆ្ងាយ។"],
   ["ហ្វឹកហាត់ការនិយាយ","«ហាត់និយាយ» ថតសំឡេងខ្លួន ហាត់ម្តងទៀត និងហ៊ាននិយាយទោះមានខុសខ្លះ។"],
-];
-EOF
-node -e 'import("./khmer.extra45.mjs").then(m=>console.log("entries:",m.EXTRA_ENTRIES_45.length))'
-grep -c '^  \["' khmer.extra45.mjs
-
-cd ~/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages
-cat > khmer.extra46.mjs <<'EOF'
-export const EXTRA_ENTRIES_46 = [
   ["ជួសជុលម៉ាស៊ីនទឹក","«ម៉ាស៊ីនទឹក» បើមិនបូម សូមពិនិត្យថាមានទឹកក្នុងបំពង់ និងប្រព័ន្ធអគ្គិសនី។ បើមិនដឹង សូមហៅជាង។"],
   ["កម្ចាត់កន្លាតក្នុងផ្ទះ","«កន្លាត» កម្ចាត់ដោយរក្សាផ្ទះស្អាត មិនទុកអាហារបើកចំហ និងបិទប្រហោងតូចៗ។"],
   ["កម្ចាត់ស្រមោច","«ស្រមោច» ជៀសទុកអាហារផ្អែមបើកចំហ ហើយសម្អាតកន្លែងដែលវាដើរ។"],
@@ -1751,50 +1024,6 @@ export const EXTRA_ENTRIES_46 = [
   ["សាកថ្មទូរស័ព្ទឱ្យល្អ","«សាកថ្ម» ប្រើឧបករណ៍សាកគុណភាពល្អ ហើយកុំសាកក្នុងកន្លែងក្តៅ ឬក្រោមខ្នើយ។"],
   ["គ្រប់គ្រងផ្ទុកទិន្នន័យ","«ទំហំផ្ទុក» ពេញ ត្រូវលុបឯកសារមិនប្រើ ឬផ្ទេរទៅការផ្ទុកអនឡាញ។"],
   ["កម្មវិធីសន្សំថ្ម","«សន្សំថ្ម» បន្ថយពន្លឺអេក្រង់ បិទកម្មវិធីផ្ទៃខាងក្រោយ និងបើមុខងារសន្សំថ្ម។"],
-];
-EOF
-node -e 'import("./khmer.extra46.mjs").then(m=>console.log("staging entries:",m.EXTRA_ENTRIES_46.length))'
-cd ~/ai-project/AI
-cp src/ai/khmer.mjs ~/trash-khoem/khmer.mjs.backup-$(date +%H%M)
-node - <<'EOF'
-import fs from "node:fs";
-const S = process.env.HOME + "/KHOEM_AI/KHOEM_AI/localization/staging-ai-languages/";
-const f = "src/ai/khmer.mjs";
-const lines = fs.readFileSync(f, "utf8").split("\n");
-const have = new Set();
-for (const l of lines) {
-  const t = l.trim();
-  if (!t.startsWith('["')) continue;
-  const e = t.indexOf('"', 2);
-  if (e < 0) continue;
-  for (const k of t.slice(2, e).split("|")) have.add(k.trim().toLowerCase());
-}
-const m = await import(S + "khmer.extra46.mjs");
-const all = m.EXTRA_ENTRIES_46;
-const fresh = [];
-for (const e of all) {
-  const keys = e[0].split("|").map((x) => x.trim().toLowerCase());
-  if (keys.some((k) => have.has(k))) continue;
-  keys.forEach((k) => have.add(k));
-  fresh.push(e);
-}
-const end = lines.lastIndexOf("];");
-lines.splice(end, 0, "  // ===== Batch 46: mixed =====", ...fresh.map((e) => "  " + JSON.stringify(e) + ","));
-fs.writeFileSync(f, lines.join("\n"));
-console.log("added:", fresh.length, "| skipped:", all.length - fresh.length);
-EOF
-node --check src/ai/khmer.mjs && echo "syntax OK" || exit 1
-M=$(node ~/tmp/short-keys.mjs 2>&1 | grep -E "match" | grep -oE '[0-9]+ / 15' | cut -d' ' -f1)
-T=$(npx vitest run src/ai/__tests__/khmer.test.mjs src/ai/__tests__/khoem-commands.test.mjs src/ai/__tests__/languageCenter.test.mjs 2>&1 | grep -E "Tests " )
-echo "match ខុស: $M/15 | $T"
-if [ "${M:-9}" -le 3 ] && echo "$T" | grep -q "40 passed"; then
-  cd ~/ai-project && git add AI/src/ai/khmer.mjs && git commit -m "khmer: add batch 46 (mixed: home, safety, travel, food, tech)" && git push
-else
-  echo "មិន commit ទេ សូមបិទភ្ជាប់លទ្ធផលមកខ្ញុំ"
-fi
-
-
-[ "$(tail -n 1 src/ai/khmer.extra15.mjs)" = "];" ] && sed -i '$d' src/ai/khmer.extra15.mjs && cat >> src/ai/khmer.extra15.mjs <<'EOF'
   // ការធ្វើដំណើរប្រចាំថ្ងៃ (ក្រុមទី ៥)
   ["តុកតុកជាអ្វី|ជិះតុកតុកដោយរបៀបណា", "តុកតុកជាយានជំនិះបីកង់ដែលពេញនិយមក្នុងទីក្រុង។ គួរសួរតម្លៃមុនឡើង ឬប្រើកម្មវិធីកក់ជិះ ដើម្បីដឹងតម្លៃច្បាស់។"],
   ["ម៉ូតូឌុបជាអ្វី|ជិះម៉ូតូឌុបសុវត្ថិភាពទេ", "ម៉ូតូឌុបជាម៉ូតូសេវាដឹកអ្នកដំណើរ ដែលលឿននៅពេលចរាចរណ៍ស្ទះ។ គួរសុំមួកសុវត្ថិភាព ហើយសួរតម្លៃមុនចេញដំណើរ។"],
@@ -1811,29 +1040,6 @@ fi
   ["ថតរូបព្រះសង្ឃបានទេ|ថតរូបនៅប្រាសាទ", "ការថតចម្លាក់ និងទេសភាពជាទូទៅអាចធ្វើបាន ប៉ុន្តែគួរសួរសិនពេលថតមនុស្ស ជាពិសេសព្រះសង្ឃ។ កន្លែងខ្លះហាមថតខាងក្នុង ដូច្នេះសូមមើលសញ្ញា។"],
   ["ថ្លៃទឹកតែ|ផ្តល់ថ្លៃទឹកតែ", "ការផ្តល់ថ្លៃទឹកតែមិនមែនជាកាតព្វកិច្ចទេ ប៉ុន្តែអ្នកអាចផ្តល់បន្តិចបន្តួចពេលសេវាល្អ។ គួរពិនិត្យថាតើគិតថ្លៃសេវារួចហើយឬនៅ។"],
   ["ញ៉ាំអាហារតាមដងផ្លូវ|អាហារតាមដងផ្លូវសុវត្ថិភាពទេ", "អាហារតាមដងផ្លូវអាចឆ្ងាញ់ ប៉ុន្តែគួរជ្រើសហាងដែលមានអតិថិជនច្រើន ហើយអាហារចម្អិនថ្មីៗ។ សម្រាប់ក្រពះរសើប គួរចៀសវាងអាហារឆៅ និងទឹកកកមិនច្បាស់ប្រភព។"],
-];
-EOF
-node --input-type=module -e '
-import { khmerReply } from "./src/ai/khmer.mjs";
-import { EXTRA_ENTRIES_15 as E } from "./src/ai/khmer.extra15.mjs";
-let live=0, shadow=0;
-for (const [k,a] of E) for (const key of k.split("|")) {
-  const r = khmerReply(key);
-  if (r == null) console.log("null:", key);
-  else if (r === a) live++; else { shadow++; console.log("បាំង:", key); }
-}
-console.log("entry:", E.length, "| ប្រើបាន:", live, "| ត្រូវបាំង:", shadow);
-'
-
-sed -i 's#\["ទៅព្រលានយន្តហោះ|ចេញដំណើរទៅព្រលានយន្តហោះមុនប៉ុន្មានម៉ោង"#["ព្រលានយន្តហោះគួរទៅមុនប៉ុន្មានម៉ោង|ចេញដំណើរទៅព្រលានយន្តហោះមុនប៉ុន្មានម៉ោង"#' src/ai/khmer.extra15.mjs
-grep -c 'ទៅព្រលានយន្តហោះ|ចេញដំណើរ' src/ai/khmer.extra15.mjs
-grep -n 'ការពារកម្តៅថ្ងៃ' src/ai/*.mjs | grep -v extra15 | cut -c1-140
-node --input-type=module -e '
-import { khmerReply } from "./src/ai/khmer.mjs";
-console.log(String(khmerReply("ការពារកម្តៅថ្ងៃ")).slice(0,120));
-'
-
-[ "$(tail -n 1 src/ai/khmer.extra15.mjs)" = "];" ] && sed -i '$d' src/ai/khmer.extra15.mjs && cat >> src/ai/khmer.extra15.mjs <<'EOF'
   // ថ្ងៃឈប់សម្រាក និងជីវភាពប្រចាំថ្ងៃ (ក្រុមទី ៦)
   ["ថ្ងៃឈប់សម្រាកជាតិមានអ្វីខ្លះ|ថ្ងៃបុណ្យជាតិកម្ពុជា", "កម្ពុជាមានថ្ងៃឈប់សម្រាកសំខាន់ៗ ដូចជាចូលឆ្នាំខ្មែរ ភ្ជុំបិណ្ឌ បុណ្យអុំទូក និងថ្ងៃបុណ្យឯករាជ្យ។ កាលបរិច្ឆេទអាចប្តូរ ដូច្នេះគួរពិនិត្យប្រតិទិនផ្លូវការជារៀងរាល់ឆ្នាំ។"],
   ["ឯករាជ្យជាតិថ្ងៃទីប៉ុន្មាន|ថ្ងៃបុណ្យឯករាជ្យកម្ពុជា", "កម្ពុជាប្រារព្ធបុណ្យឯករាជ្យជាតិនៅថ្ងៃទី ៩ ខែវិច្ឆិកា ជារៀងរាល់ឆ្នាំ។ ថ្ងៃនេះរំលឹកដល់ការទទួលបានឯករាជ្យពីបារាំងក្នុងឆ្នាំ ១៩៥៣។"],
@@ -1850,21 +1056,6 @@ console.log(String(khmerReply("ការពារកម្តៅថ្ងៃ")).
   ["ធានារ៉ាប់រងការធ្វើដំណើរ|ទិញធានារ៉ាប់រងមុនទៅ", "ធានារ៉ាប់រងធ្វើដំណើរអាចជួយក្នុងករណីអាសន្នផ្នែកសុខភាព ឬការកក់ត្រូវលុបចោល។ គួរអានលក្ខខណ្ឌឱ្យច្បាស់ថាអ្វីមួយត្រូវបានរួមបញ្ចូល។"],
   ["លេខបន្ទាន់ក្នុងកម្ពុជា|ហៅជំនួយពេលមានអាសន្ន", "ក្នុងករណីអាសន្ន សូមស្វែងរកលេខបន្ទាន់ផ្លូវការពីប្រភពទំនើប ហើយសុំជំនួយពីសណ្ឋាគារ ឬអ្នកជិតខាង។ ទុកលេខសំខាន់ៗក្នុងទូរស័ព្ទជាមុន។"],
   ["ស្វែងរកមន្ទីរពេទ្យ|ទៅមន្ទីរពេទ្យពេលឈឺ", "ពេលឈឺ សូមទៅគ្លីនិក ឬមន្ទីរពេទ្យដែលមានកេរ្តិ៍ឈ្មោះ ហើយយកលិខិតឆ្លងដែន និងឯកសារធានារ៉ាប់រងទៅជាមួយ។ ករណីធ្ងន់ សូមហៅជំនួយបន្ទាន់ភ្លាមៗ។"],
-];
-EOF
-node --input-type=module -e '
-import { khmerReply } from "./src/ai/khmer.mjs";
-import { EXTRA_ENTRIES_15 as E } from "./src/ai/khmer.extra15.mjs";
-let live=0, shadow=0;
-for (const [k,a] of E) for (const key of k.split("|")) {
-  const r = khmerReply(key);
-  if (r == null) console.log("null:", key);
-  else if (r === a) live++; else { shadow++; console.log("បាំង:", key); }
-}
-console.log("entry:", E.length, "| ប្រើបាន:", live, "| ត្រូវបាំង:", shadow);
-'
-
-[ "$(tail -n 1 src/ai/khmer.extra15.mjs)" = "];" ] && sed -i '$d' src/ai/khmer.extra15.mjs && cat >> src/ai/khmer.extra15.mjs <<'EOF'
   // ទេសចរណ៍ធម្មជាតិ (ក្រុមទី ៧)
   ["មើលថ្ងៃរះអង្គរវត្តពេលណា|ទៅមើលថ្ងៃរះនៅអង្គរវត្ត", "ភ្ញៀវច្រើនទៅមើលថ្ងៃរះនៅអង្គរវត្តពេលព្រលឹម ដូច្នេះមនុស្សច្រើន។ គួរចេញដំណើរមុនថ្ងៃរះ យកភ្លើងពិលតូច ហើយមកដល់មុនពេល ដើម្បីរកកន្លែងល្អ។"],
   ["ជួលកង់ទៅអង្គរបានទេ|ជិះកង់ទស្សនាអង្គរ", "អ្នកអាចជួលកង់នៅសៀមរាប ដើម្បីជិះទស្សនាប្រាសាទអង្គរ។ គួរចាប់ផ្តើមពេលព្រឹកព្រហាម យកទឹកឱ្យគ្រប់ និងជៀសវាងជិះពេលថ្ងៃត្រង់ដែលក្តៅខ្លាំង។"],
@@ -1876,52 +1067,12 @@ console.log("entry:", E.length, "| ប្រើបាន:", live, "| ត្រ�
   ["កាបូបដើរលេងមួយថ្ងៃគួរមានអ្វី|ត្រៀមកាបូបទៅដើរលេង", "គួរមានទឹក ក្រែមការពារថ្ងៃ មួក ថ្នាំការពារមូស ឧបករណ៍សាកថ្ម និងលុយសុទ្ធតិចតួច។ សម្រាប់ប្រាសាទ អាចយកក្រមា ឬសំពត់ស្តើងសម្រាប់គ្របស្មា។"],
   ["កាត់បន្ថយសំរាមពេលទេសចរណ៍|ធ្វើទេសចរណ៍ថែរក្សាបរិស្ថាន", "អ្នកអាចយកដបទឹកប្រើឡើងវិញ និងថង់ក្រណាត់ ដើម្បីកាត់បន្ថយប្លាស្ទិក។ ចៀសវាងការបោះសំរាមលើផ្លូវ ឆ្នេរ ឬក្នុងព្រៃ ហើយគោរពច្បាប់កន្លែងនីមួយៗ។"],
   ["មើលថ្ងៃលិចនៅភ្នំពេញ|ថ្ងៃលិចនៅកន្លែងណាស្អាត", "នៅភ្នំពេញ អ្នកអាចទៅមើលថ្ងៃលិចតាមមាត់ទន្លេ។ ពេលនោះអាកាសធាតុត្រជាក់ជាង ហើយមានអាហារតាមដងផ្លូវ និងមនុស្សដើរលេងច្រើន។"],
-];
-EOF
-node --input-type=module -e '
-import { khmerReply } from "./src/ai/khmer.mjs";
-import { EXTRA_ENTRIES_15 as E } from "./src/ai/khmer.extra15.mjs";
-let live=0, shadow=0;
-for (const [k,a] of E) for (const key of k.split("|")) {
-  const r = khmerReply(key);
-  if (r == null) console.log("null:", key);
-  else if (r === a) live++; else { shadow++; console.log("បាំង:", key); }
-}
-console.log("entry:", E.length, "| ប្រើបាន:", live, "| ត្រូវបាំង:", shadow);
-'
-
-cd ~/ai-project
-mkdir -p ~/tmp
-cat > ~/tmp/extra41.txt <<'EOF'
   ["វិធីសម្រាកភ្នែក|វិធីការពារភ្នែក","សម្រាកភ្នែកគ្រប់ ២០ នាទី ដោយមើលទៅចម្ងាយប្រហែល ៦ ម៉ែត្រ រយៈពេល ២០ វិនាទី ហើយព្រិចភ្នែកឱ្យបានញឹកញាប់។"],
   ["ងូតទឹកប៉ុន្មានដង|ងូតទឹកញឹកញាប់","ក្នុងអាកាសធាតុក្តៅ ងូតទឹកថ្ងៃម្តងឬពីរដងគឺគ្រប់គ្រាន់ ហើយសម្អាតកន្លែងដែលប្រឡាក់ញើសឱ្យបានស្អាត។"],
   ["ងងុយដេក|ងងុយពេលបើកបរ","បើងងុយពេលបើកបរ ត្រូវឈប់ក្នុងកន្លែងសុវត្ថិភាព ហើយសម្រាក ឬងងុយគេងបន្តិច។ កុំបន្តបើកបរពេលងងុយ។"],
   ["ញ៉ាំបាយប៉ុន្មានពេល|ញ៉ាំអាហារតាមម៉ោង","ញ៉ាំអាហារតាមម៉ោងទៀងទាត់ និងផឹកទឹកឱ្យគ្រប់គ្រាន់ ជួយឱ្យរាងកាយមានកម្លាំង។"],
   ["ញាក់ខ្លួន|ញាក់គ្រុន","បើញាក់ខ្លួនជាមួយនឹងគ្រុនក្តៅ ត្រូវសម្រាក ផឹកទឹកឱ្យបានច្រើន ហើយទៅជួបគ្រូពេទ្យបើមិនធូរស្បើយ។"],
   ["យប់មិនដេក|យប់គេងមិនលក់","បើគេងមិនលក់ ព្យាយាមចូលគេងម៉ោងដូចគ្នារាល់ថ្ងៃ ជៀសវាងកាហ្វេ និងទូរស័ព្ទមុនគេង។ បើមិនល្អឡើង គួរពិគ្រោះគ្រូពេទ្យ។"],
-EOF
-
-ls -l ~/tmp/extra41.txt
-
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys = new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-fs.readFileSync(os.homedir()+'/tmp/extra41.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const d=m[1].split('|').some(a=>keys.has(a.trim().toLowerCase()));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra41 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
-
-cd ~/ai-project
-cat > ~/tmp/extra42.txt <<'EOF'
   ["យល់ដឹងអំពីសុវត្ថិភាពអនឡាញ|យល់ដឹងសុវត្ថិភាពអនឡាញ","កុំចែករំលែកពាក្យសម្ងាត់ ឬលេខកូដ OTP ជាមួយអ្នកណាឡើយ។ ប្រើពាក្យសម្ងាត់ខុសគ្នាសម្រាប់គណនីនីមួយៗ ហើយបើកការផ្ទៀងផ្ទាត់ពីរជំហានបើអាច។"],
   ["យកចិត្តទុកដាក់សុខភាពខួរក្បាល|ថែរក្សាខួរក្បាល","គេងឱ្យគ្រប់ ធ្វើលំហាត់ប្រាណទៀងទាត់ អានសៀវភៅ និងរៀនអ្វីថ្មីៗ ជួយថែរក្សាខួរក្បាលឱ្យមានសុខភាពល្អ។"],
   ["យកទឹកផឹកប៉ុន្មាន|ផឹកទឹកប៉ុន្មានកែវ","ជាទូទៅមនុស្សពេញវ័យគួរផឹកទឹកប្រហែល ៨ កែវក្នុងមួយថ្ងៃ ហើយផឹកបន្ថែមពេលអាកាសធាតុក្តៅ ឬពេលធ្វើលំហាត់ប្រាណ។"],
@@ -1942,29 +1093,6 @@ cat > ~/tmp/extra42.txt <<'EOF'
   ["វិធីបន្ថយភាពតានតឹង|បន្ថយស្ត្រេស","ដកដង្ហើមវែងៗ ដើរលេង និយាយជាមួយមនុស្សដែលទុកចិត្ត និងគេងឱ្យគ្រប់ ជួយបន្ថយភាពតានតឹង។"],
   ["វិធីសម្អាតទូរស័ព្ទ|លាងទូរស័ព្ទ","បិទទូរស័ព្ទ ហើយជូតអេក្រង់ដោយក្រណាត់ទន់ស្រាលសើម។ កុំចាក់ទឹកដោយផ្ទាល់លើទូរស័ព្ទ។"],
   ["វិធីជៀសវាងការបោកប្រាស់|ការពារការបោក","កុំចុចតំណដែលមិនស្គាល់ កុំផ្ញើប្រាក់ឱ្យអ្នកដែលមិនស្គាល់ ហើយផ្ទៀងផ្ទាត់ព័ត៌មានជាមួយប្រភពផ្លូវការជាមុន។"],
-EOF
-ls -l ~/tmp/extra42.txt
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys=new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-const seen=new Set();
-fs.readFileSync(os.homedir()+'/tmp/extra42.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  const d=ks.some(a=>keys.has(a)||seen.has(a));
-  ks.forEach(a=>seen.add(a));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra42 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
-cd ~/ai-project
-cat > ~/tmp/extra43.txt <<'EOF'
   ["វិធីចម្អិនបាយឱ្យឆ្ងាញ់|ចំអិនបាយ","លាងអង្ករ ២–៣ ដង ដាក់ទឹកឱ្យបានសមាមាត្រ (អង្ករ ១ ទឹក ១.៥ ទៅ ២) ហើយទុកឱ្យឆ្អិនស្រួលក្នុងឆ្នាំងបិទជិត។"],
   ["វិធីរក្សាសាច់ឱ្យស្រស់|រក្សាសាច់","ទុកសាច់ក្នុងទូទឹកកក ឬកន្លែងត្រជាក់ ខ្ចប់ឱ្យជិត ហើយកុំទុកសាច់ឆៅជាប់នឹងអាហារឆ្អិន។"],
   ["វិធីលាងបន្លែ|លាងបន្លែឱ្យស្អាត","លាងបន្លែក្រោមទឹកហូរឱ្យស្អាត ហើយបកស្បែក ឬកាត់ស្លឹកខាងក្រៅចេញ មុននឹងចម្អិន ឬញ៉ាំឆៅ។"],
@@ -1990,29 +1118,6 @@ cat > ~/tmp/extra43.txt <<'EOF'
   ["ឈឺទ្រូងធ្ងន់|ឈឺទ្រូងខ្លាំង","ឈឺទ្រូងខ្លាំង ដកដង្ហើមខ្លី ឬបែកញើសត្រជាក់ ត្រូវទៅមន្ទីរពេទ្យ ឬហៅជំនួយបន្ទាន់ភ្លាម។"],
   ["ឈឺក្បាលជាប់|ឈឺក្បាលញឹកញាប់","បើឈឺក្បាលញឹកញាប់ សូមសម្រាក ផឹកទឹក និងគេងគ្រប់ ហើយទៅជួបគ្រូពេទ្យបើមិនធូរស្បើយ។"],
   ["ឈាមកំពុងហូរ|ឈាមហូរ","ប្រើក្រណាត់ស្អាតសង្កត់ដាច់ដោយផ្ទាល់លើមុខរបួសឱ្យណែន ហើយទៅមន្ទីរពេទ្យបើឈាមមិនឈប់។"],
-EOF
-ls -l ~/tmp/extra43.txt
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys=new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-const seen=new Set();
-fs.readFileSync(os.homedir()+'/tmp/extra43.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  const d=ks.some(a=>keys.has(a)||seen.has(a));
-  ks.forEach(a=>seen.add(a));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra43 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
-cd ~/ai-project
-cat > ~/tmp/extra44.txt <<'EOF'
   ["ជួយរៀបចំសំបុត្របញ្ចប់ការងារ|សរសេរលិខិតលាឈប់","លិខិតលាឈប់គួរខ្លី សុភាព និងមានកាលបរិច្ឆេទចាកចេញ។ អរគុណដល់ក្រុមហ៊ុន ហើយផ្តល់ពេលជូនដំណឹងមុនតាមកិច្ចសន្យា។"],
   ["ជួយរៀបចំការសម្ភាសន៍ការងារ|ត្រៀមសម្ភាសន៍","ស្វែងយល់អំពីក្រុមហ៊ុន ហាត់ឆ្លើយសំណួរទូទៅ ដូចជាចំណុចខ្លាំង និងមូលហេតុដែលចង់ធ្វើការ។ មកដល់មុនម៉ោង និងស្លៀកពាក់សមរម្យ។"],
   ["ជួយសរសេរ CV|ធ្វើ CV","CV គួរខ្លី (១-២ ទំព័រ) បញ្ជាក់ព័ត៌មានទំនាក់ទំនង បទពិសោធន៍ ការអប់រំ និងជំនាញ។ ពិនិត្យអក្ខរាវិរុទ្ធឱ្យបានល្អិតល្អន់មុនផ្ញើ។"],
@@ -2027,30 +1132,7 @@ cat > ~/tmp/extra44.txt <<'EOF'
   ["មិនទាន់យល់ពីអត្រាការប្រាក់|ការប្រាក់ជាអ្វី","ការប្រាក់គឺថ្លៃនៃការខ្ចីលុយ ឬផលចំណេញពីការដាក់លុយ។ អត្រាកាន់តែខ្ពស់ កាន់តែចំណាយច្រើនពេលខ្ចី ហើយកាន់តែចំណេញច្រើនពេលសន្សំ។"],
   ["មិនទាន់យល់ពីកិច្ចសន្យា|អានកិច្ចសន្យា","អានកិច្ចសន្យាឱ្យចប់មុនចុះហត្ថលេខា ជាពិសេសលក្ខខណ្ឌទូទាត់ ការបញ្ចប់ និងទោសពិន័យ។ សួរពាក្យមិនយល់ ឬពិគ្រោះអ្នកច្បាប់។"],
   ["មិនទាន់យល់ពីអ៊ីមែល|អ៊ីមែលជាអ្វី","អ៊ីមែលជាសំបុត្រអេឡិចត្រូនិកដែលផ្ញើតាមអ៊ីនធឺណិត។ អ្នកត្រូវការអាសយដ្ឋានអ៊ីមែល ដូចជា ឈ្មោះ@ដែន ដើម្បីផ្ញើ និងទទួល។"],
-  ["មិនទាន់យល់ពីពាក្យសម្ងាត់ខ្លាំង|ពាក្យសម្ងាត់ល្អ","ពាក្យសម្ងាត់ល្អគួរវែង ១២ តួអក្សរឡើង ហើយលាយអក្សរ លេខ និងសញ្ញា។ កុំប្រើថ្ងៃកំណើត ឬឈ្មោះខ្លួន ហើយប្រើក្នុងគណនីនីមួយៗខុសគ្នា។"],
-EOF
-ls -l ~/tmp/extra44.txt
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys=new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-const seen=new Set();
-fs.readFileSync(os.homedir()+'/tmp/extra44.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  const d=ks.some(a=>keys.has(a)||seen.has(a));
-  ks.forEach(a=>seen.add(a));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra44 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
-cd ~/ai-project
-cat > ~/tmp/extra45.txt <<'EOF'
+  ["មិនទាន់យល់ពីពាក្យសម្ងាត់ខ្លាំង|ពាក្យសម្ងាត់ល្អ","ពាក្យសម្ងាត់ល្អគួរវែង ១២ តួអក្សរឡើង ហើយលាយអក្សរ លេខ និងសញ្ញា។ កុំប្រើថ្ងៃកំណើត ឬឈ្មោះខ្លួន ហើយប្រើក្នុងគណនីនីមួយៗខុសគ្នា"],
   ["ជួយថែទាំឆ្មា|ចិញ្ចឹមឆ្មា","ឆ្មាត្រូវការទឹកស្អាត អាហារសមស្រប កន្លែងដេកស្ងប់ និងការចាក់វ៉ាក់សាំងតាមកាលកំណត់។ យកទៅពិនិត្យសត្វពេទ្យជាប្រចាំ។"],
   ["ជួយថែទាំឆ្កែ|ចិញ្ចឹមឆ្កែ","ឆ្កែត្រូវការដើរលេង ទឹកស្អាត អាហារគ្រប់គ្រាន់ និងវ៉ាក់សាំងបង្ការជំងឺឆ្កែឆ្កួត។ បង្ហាត់វាឱ្យស្តាប់បង្គាប់ពីតូច។"],
   ["មានបញ្ហាឆ្កែព្រុសពេលយប់|ឆ្កែព្រុសច្រើន","ឆ្កែព្រុសអាចមកពីអផ្សុក ឃ្លាន ឬឮសំឡេងចម្លែក។ ដើរលេងឱ្យហត់មុនយប់ និងបង្ហាត់វាឱ្យស្ងប់។ បើនៅតែបន្ត សួរសត្វពេទ្យ។"],
@@ -2069,65 +1151,6 @@ cat > ~/tmp/extra45.txt <<'EOF'
   ["ជួយឱ្យមានភ្លៀងធ្លាក់ខ្លាំង|ភ្លៀងខ្លាំងធ្វើម៉េច","ជៀសវាងធ្វើដំណើរពេលភ្លៀងខ្លាំង និងមានផ្គរ។ ជៀសវាងដើមឈើធំ និងទីវាល ហើយរង់ចាំនៅកន្លែងសុវត្ថិភាពរហូតទាល់តែអាកាសធាតុល្អ។"],
   ["ចង់ស្វែងរកវិធីជួយអ្នកជិតខាង|ជួយអ្នកជិតខាង","សួរសុខទុក្ខអ្នកជិតខាងជាប្រចាំ ជួយក្នុងពេលពួកគេត្រូវការ និងគោរពឯកជនភាពរបស់គេ។ ទំនាក់ទំនងល្អនាំឱ្យសហគមន៍រឹងមាំ។"],
   ["ចង់ស្វែងរកការងារស្ម័គ្រចិត្ត|ស្ម័គ្រចិត្ត","ស្វែងរកអង្គការ ឬវត្តដែលត្រូវការអ្នកស្ម័គ្រចិត្ត ហើយជ្រើសសកម្មភាពដែលស័ក្តិសមនឹងពេលវេលា និងជំនាញរបស់អ្នក។"],
-EOF
-ls -l ~/tmp/extra45.txt
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys=new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-const seen=new Set();
-fs.readFileSync(os.homedir()+'/tmp/extra45.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  const d=ks.some(a=>keys.has(a)||seen.has(a));
-  ks.forEach(a=>seen.add(a));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra45 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
-
-cd ~/ai-project
-set -o pipefail
-cp AI/src/ai/khmer.mjs ~/tmp/khmer.mjs.bak5
-cp ~/tmp/extra45.txt ~/tmp/extra45.txt.orig
-sed -i 's#\["មានបញ្ហាមេរោគស្មោកគ្រោក|ផ្ទះចេះតែកខ្វក់"#["មានបញ្ហាផ្ទះកខ្វក់|ផ្ទះកខ្វក់ញឹកញាប់"#; s#\["ជួយឱ្យមានភ្លៀងធ្លាក់ខ្លាំង|ភ្លៀងខ្លាំងធ្វើម៉េច"#["ភ្លៀងធ្លាក់ខ្លាំងធ្វើម៉េច|ភ្លៀងខ្លាំងធ្វើម៉េច"#' ~/tmp/extra45.txt
-echo "សំណល់ពាក្យចាស់ (ត្រូវតែ 0):" $(grep -c 'មេរោគស្មោកគ្រោក\|ជួយឱ្យមានភ្លៀង' ~/tmp/extra45.txt)
-
-node --input-type=module <<'NODE' && node --check AI/src/ai/khmer.mjs && echo "syntax OK" && (cd AI && npm test 2>&1 | tail -6) && git add AI/src/ai/khmer.mjs && git status --short && git commit -m "Add Khmer Q&A entries extra45 (11 entries)" && git push origin HEAD
-import fs from 'node:fs';
-import os from 'node:os';
-const file='AI/src/ai/khmer.mjs';
-const src=fs.readFileSync(file,'utf8').split('\n');
-const keys=new Set();
-src.forEach(l=>{const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));});
-const add=[];
-fs.readFileSync(os.homedir()+'/tmp/extra45.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  if(ks.some(a=>keys.has(a))){console.log('រំលង (ជាន់):',m[1]);return;}
-  ks.forEach(a=>keys.add(a));
-  add.push(l);
-});
-let last=-1;
-src.forEach((l,i)=>{ if(/^\s*\["[^"]+"\s*,\s*".*"\],\s*$/.test(l)) last=i; });
-src.splice(last+1,0,...add);
-fs.writeFileSync(file,src.join('\n'));
-const where=new Map();
-src.forEach((l,i)=>{const m=l.match(/^\s*\["([^"]+)"/); if(!m) return;
-  m[1].split('|').map(a=>a.trim().toLowerCase()).forEach(k=>{
-    if(!where.has(k)) where.set(k,new Set()); where.get(k).add(i+1);});});
-const dk=[...where].filter(([k,s])=>s.size>1);
-console.log('បានបញ្ចូល:',add.length,'| ធាតុចុងនៅបន្ទាត់:',last+1+add.length,'| key សរុប:',where.size,'| key ស្ទួន:',dk.length);
-if(add.length!==11||dk.length){console.log('❌ មិនត្រូវតាមរំពឹង មិន commit');process.exit(1);}
-NODE
-
-cd ~/ai-project
-cat > ~/tmp/extra46.txt <<'EOF'
   ["ជួយបង្រៀនកូនឱ្យអានសៀវភៅ|កូនមិនចូលចិត្តអាន","អានជាមួយកូនរៀងរាល់ថ្ងៃ ១០-១៥ នាទី ជ្រើសសៀវភៅដែលស័ក្តិសមនឹងអាយុ និងចំណាប់អារម្មណ៍។ ឱ្យកូនជ្រើសសៀវភៅខ្លួនឯង ហើយកុំបង្ខំ។"],
   ["មានបញ្ហាកូនមិនស្តាប់បង្គាប់|កូនរឹងរូស","និយាយដោយស្ងប់ ពន្យល់មូលហេតុ ហើយកំណត់ច្បាប់ច្បាស់លាស់ និងស្របគ្នា។ សរសើរពេលកូនធ្វើល្អ ជាជាងស្តីបន្ទោសតែម្យ៉ាង។"],
   ["មានបញ្ហាកូនលេងទូរស័ព្ទច្រើន|កូនជក់ទូរស័ព្ទ","កំណត់ម៉ោងប្រើទូរស័ព្ទជាមួយគ្នា ហើយផ្តល់សកម្មភាពជំនួស ដូចជាលេងក្រៅផ្ទះ ឬអានសៀវភៅ។ ធ្វើជាគំរូដោយកាត់បន្ថយការប្រើទូរស័ព្ទរបស់ខ្លួនផង។"],
@@ -2144,24 +1167,19 @@ cat > ~/tmp/extra46.txt <<'EOF'
   ["មិនដឹងធ្វើម៉េចសុំទោស|សុំទោសយ៉ាងម៉េច","សុំទោសដោយស្មោះត្រង់ ទទួលស្គាល់កំហុសខ្លួនផ្ទាល់ ហើយបង្ហាញថាអ្នកនឹងកែប្រែ។ កុំរកលេសឱ្យខ្លួនឯង។"],
   ["មិនដឹងធ្វើម៉េចបដិសេធ|បដិសេធដោយសុភាព","និយាយត្រង់ៗ តែស្លូតបូត ដូចជា ខ្ញុំអរគុណ តែមិនអាចជួយបានទេ។ មិនចាំបាច់ពន្យល់វែងឆ្ងាយ ឬសុំទោសច្រើនពេក។"],
   ["ចង់ចាប់ផ្តើមរត់ហាត់ប្រាណ|ចាប់ផ្តើមរត់","ចាប់ផ្តើមដោយដើរលឿន និងរត់ស្រាលៗ ១០-២០ នាទី ៣ ដងក្នុងមួយសប្តាហ៍។ ពាក់ស្បែកជើងសមរម្យ ហើយបង្កើនបន្តិចម្តងៗ។"],
-EOF
-ls -l ~/tmp/extra46.txt
-node --input-type=module <<'NODE'
-import fs from 'node:fs';
-import os from 'node:os';
-const keys=new Set();
-fs.readFileSync('AI/src/ai/khmer.mjs','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(m) m[1].split('|').forEach(a=>keys.add(a.trim().toLowerCase()));
-});
-let tot=0,dup=0,fresh=0;
-const seen=new Set();
-fs.readFileSync(os.homedir()+'/tmp/extra46.txt','utf8').split('\n').forEach(l=>{
-  const m=l.match(/^\s*\["([^"]+)"/); if(!m) return; tot++;
-  const ks=m[1].split('|').map(a=>a.trim().toLowerCase());
-  const d=ks.some(a=>keys.has(a)||seen.has(a));
-  ks.forEach(a=>seen.add(a));
-  d?dup++:fresh++; if(d) console.log('ជាន់:',m[1]);
-});
-console.log('extra46 សរុប:',tot,'| ជាន់:',dup,'| ថ្មី:',fresh);
-NODE
-
+  ["មានបញ្ហាវ៉ាយហ្វាយយឺត|វ៉ាយហ្វាយមិនលឿន","ចាប់ផ្តើមឡើងវិញរ៉ោតទ័រ រួចរើទីតាំងរ៉ោតទ័រទៅកណ្តាលផ្ទះ ហើយកាត់បន្ថយឧបករណ៍ដែលភ្ជាប់ក្នុងពេលតែមួយ។ បើនៅតែយឺត សួរអ្នកផ្តល់សេវាអ៊ីនធឺណិត។"],
+  ["មានបញ្ហាភ្លេចលេខសម្ងាត់ទូរស័ព្ទ|ភ្លេចលេខកូដទូរស័ព្ទ","ប្រើជម្រើសភ្លេចលេខកូដនៅលើអេក្រង់ ឬគណនីដែលភ្ជាប់ជាមួយទូរស័ព្ទ។ បើមិនបាន សូមទៅហាងជួសជុលដែលអាចទុកចិត្តបាន ហើយកុំប្រើកម្មវិធីមិនស្គាល់។"],
+  ["មានបញ្ហាទូរស័ព្ទពេញទំហំ|ទូរស័ព្ទអស់កន្លែង","លុបរូបភាព វីដេអូ និងកម្មវិធីដែលមិនប្រើ ហើយបម្រុងទុកឯកសារសំខាន់ទៅ cloud ឬកុំព្យូទ័រ។ សម្អាតឯកសារទាញយកជាប្រចាំ។"],
+  ["ចង់ស្វែងរកវិធីប្រើធនាគារអនឡាញ|ប្រើកម្មវិធីធនាគារ","ទាញយកកម្មវិធីពីប្រភពផ្លូវការរបស់ធនាគារតែប៉ុណ្ណោះ ហើយកុំចែករំលែកលេខកូដ ឬ OTP ជាមួយអ្នកណា។ ពិនិត្យអ្នកទទួលឱ្យច្បាស់មុនផ្ទេរប្រាក់។"],
+  ["មានបញ្ហាផ្ទេរប្រាក់ខុសគណនី|ផ្ទេរលុយខុស","ទាក់ទងធនាគារភ្លាមៗតាមលេខទូរស័ព្ទផ្លូវការ ហើយរក្សាភស្តុតាងនៃប្រតិបត្តិការ។ ការទាក់ទងលឿនជួយបង្កើនឱកាសដោះស្រាយ។"],
+  ["មានបញ្ហាក្មេងស្រលាញ់ការលេងហ្គេមខ្លាំង|ជក់ហ្គេម","កំណត់ម៉ោងលេង និងពិភាក្សាជាមួយគ្នាអំពីតុល្យភាពនៃការរៀន និងការលេង។ ផ្តល់សកម្មភាពផ្សេងៗដែលគាត់ចូលចិត្ត។"],
+  ["ជួយរៀបចំកាលវិភាគសិស្ស|កាលវិភាគរៀន","បែងចែកពេលរៀន ហូបចុក លេង និងគេងឱ្យច្បាស់លាស់ ហើយផ្តល់ពេលសម្រាកខ្លីៗបន្ទាប់ពីរៀនរៀងរាល់ ៤៥ នាទី។"],
+  ["ចង់ស្វែងរកវិធីរៀនអាន|អានរហ័ស","អានជាប្រចាំ ជ្រើសសៀវភៅដែលចូលចិត្ត និងកត់ចំណុចសំខាន់។ ការអានយឺតៗដោយយល់ ប្រសើរជាងអានលឿនតែមិនយល់។"],
+  ["មិនដឹងធ្វើម៉េចរក្សាមិត្តភាព|រក្សាមិត្តល្អ","ទំនាក់ទំនងជាប្រចាំ សួរសុខទុក្ខ ជួយពេលគេត្រូវការ និងគោរពគ្នា។ ការស្តាប់ដោយស្មោះគឺសំខាន់ជាងការនិយាយច្រើន។"],
+  ["មានបញ្ហាមិត្តភក្តិប្រើប្រាស់ខ្ញុំ|មិត្តប្រើប្រាស់ខ្ញុំ","ប្រាប់គាត់ត្រង់ៗអំពីអ្វីដែលអ្នកមិនស្រួលចិត្ត ហើយកំណត់ព្រំដែនឱ្យច្បាស់។ មិត្តល្អគួរគោរពអ្នក ហើយបើនៅតែបន្ត គួរពិចារណាចម្ងាយពីទំនាក់ទំនងនោះ។"],
+  ["ចង់ស្វែងរកកីឡាសម្រាប់ក្មេង|កីឡាល្អសម្រាប់កូន","ជ្រើសកីឡាដែលកូនចូលចិត្ត ដូចជាបាល់ទាត់ ហែលទឹក ឬប្រណាំងរត់។ កីឡាល្អជួយឱ្យរាងកាយមាំមួន និងរៀនធ្វើការជាក្រុម។"],
+  ["ជួយរៀបចំការប្រកួតកីឡាក្នុងភូមិ|ប្រកួតកីឡាភូមិ","កំណត់កាលបរិច្ឆេទ កន្លែង ក្រុមចូលរួម និងច្បាប់ប្រកួតឱ្យច្បាស់ ព្រមទាំងរៀបចំជំនួយបឋម និងទឹកផឹកសម្រាប់អ្នកលេង។"],
+  ["ចង់ស្វែងរកវិធីរៀនភ្លេង|រៀនលេងភ្លេង","ជ្រើសឧបករណ៍ដែលចូលចិត្ត រៀនពីគ្រូ ឬវីដេអូណែនាំ ហើយហាត់ជាប្រចាំតិចៗរៀងរាល់ថ្ងៃ។ ការអត់ធ្មត់សំខាន់ជាងការប្រញាប់។"],
+  ["ចង់ស្វែងរកវិធីថតរូបឱ្យស្អាត|ថតរូបល្អ","ថតនៅកន្លែងមានពន្លឺធម្មជាតិ ជៀសវាងថតទល់នឹងពន្លឺ ហើយរៀបចំរូបឱ្យមានទីតាំងអ្នក និងផ្ទៃខាងក្រោយច្បាស់លាស់។"],
+  ["មានបញ្ហារូបថតព្រិល|រូបថតមិនច្បាស់","ជូតកញ្ចក់កាមេរ៉ា កាន់ទូរស័ព្ទឱ្យនឹង ហើយថតនៅកន្លែងមានពន្លឺគ្រប់គ្រាន់។ ចុចលើអេក្រង់ដើម្បីផ្តោតលើអ្វីដែលចង់ថត។"],
+  ["មានបញ្ហាភ្លេចយកឯកសារទៅធ្វើការ|ភ្លេចឥវ៉ាន់ជាញឹកញាប់","រៀបបញ្ជីរបស់ត្រូវយកនៅមាត់ទ្វារ ហើយពិនិត្យរាល់ពេលចេញពីផ្ទះ។ ដាក់របស់ចាំបាច់ដូចសោ និងទូរស័ព្ទនៅកន្លែងដដែលរាល់ថ្ងៃ។"],
