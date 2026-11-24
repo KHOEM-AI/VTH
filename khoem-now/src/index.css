@@ -1,19 +1,36 @@
-:root {
-  font-size: 16px;
-  color-scheme: dark;
+:root{
+  font-family:"Segoe UI","Noto Sans Khmer","Khmer OS",system-ui,sans-serif;
+  font-synthesis:none;
+  text-rendering:optimizeLegibility;
+  font-size:16px;
+  color-scheme:dark;
+  --bg:#071323;
+  --bar:#09192beF;
+  --panel:#10243a;
+  --panel2:#0b1c30;
+  --line:#203b56;
+  --text:#eaf2fb;
+  --muted:#8ca2ba;
+  --cyan:#39bde8;
+  --gold:#d8aa55;
+  --tint:#12344d;
 }
-
-* {
-  box-sizing: border-box;
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#eef3f9;
+  --bar:#f8fbfff0;
+  --panel:#ffffff;
+  --panel2:#e5edf6;
+  --line:#d4dfeb;
+  --text:#172b42;
+  --muted:#667b91;
+  --cyan:#078ebc;
+  --gold:#a97824;
+  --tint:#e5f3f9;
 }
-
-body {
-  margin: 0;
-  font-family: "Segoe UI", "Khmer OS", system-ui, sans-serif;
-  background: #0f1115;
-  color: #f2f2f2;
-}
-
-a {
-  color: inherit;
-}
+*{box-sizing:border-box}
+html{min-width:320px;scroll-behavior:smooth}
+body{margin:0;min-width:320px;min-height:100vh;background:var(--bg);color:var(--text)}
+button,input{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+::selection{background:#2baed755}
