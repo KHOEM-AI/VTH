@@ -90,11 +90,6 @@
 .certificate-modal p{font-size:12px;color:#a9bbcd}
 .modal-close{position:absolute;top:10px;right:10px;width:38px;height:38px;border:0;border-radius:10px;background:#071323;color:white;cursor:pointer}
 .quick-upload{position:fixed;right:20px;bottom:20px;width:50px;height:50px;display:grid;place-items:center;border:1px solid #40bfe8;border-radius:15px;background:var(--cyan);color:#061522;box-shadow:0 8px 25px #0004;cursor:pointer}
-.quick-upload input{display:none}
-.upload-notice{position:fixed;z-index:40;right:20px;bottom:82px;max-width:280px;padding:14px;display:grid;gap:7px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 10px 30px #0004}
-.upload-notice strong{font-size:12px;overflow-wrap:anywhere}
-.upload-notice span{font-size:11px;color:var(--muted)}
-.upload-notice button{justify-self:start;border:0;background:none;color:var(--cyan);cursor:pointer}
 @media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}.collection-grid{grid-template-columns:repeat(2,1fr)}.file-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.certificate-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.welcome-art{width:120px}.welcome-art:before{width:95px;height:95px}.welcome-art:after{width:115px;height:115px}}
 @media(max-width:520px){.topbar{height:66px;padding:0 13px;gap:11px}.brand-mark{width:36px;height:36px}.brand strong{font-size:12px}.brand small{font-size:8px}.storage-chip{display:none}.theme-button{padding:0 10px}.main-content{padding:30px 15px}.page-heading{margin-bottom:22px}.heading-mark{width:48px;height:48px}.welcome-panel{min-height:220px;padding:22px}.welcome-art{position:absolute;right:-22px;bottom:-20px;opacity:.18}.welcome-panel>div:first-child{max-width:100%}.stats-grid{gap:9px;margin-bottom:32px}.stat-card{padding:14px}.stat-card strong{font-size:25px}.collection-grid{gap:9px}.collection-card{min-height:130px;padding:13px}.certificate-grid,.certificate-grid--preview{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.certificate-info{padding:11px}.certificate-info strong{font-size:12px}.content-panel{padding:14px}.file-grid{grid-template-columns:1fr}.footer{font-size:8px;gap:10px}.footer span:last-child{text-align:right}}
 

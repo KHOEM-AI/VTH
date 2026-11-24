@@ -108,7 +108,6 @@ export default function App() {
   const [manifest, setManifest] = useState<Manifest>({});
   const [certificates, setCertificates] = useState(FALLBACK_CERTIFICATES);
   const [query, setQuery] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [storageFiles, setStorageFiles] = useState<KIFile[]>([]);
   const [uploadQueue, setUploadQueue] = useState<File[]>([]);
   const [storageLoading, setStorageLoading] = useState(false);
@@ -278,7 +277,6 @@ export default function App() {
     setSection(name);
     setQuery("");
     setDrawer(false);
-    setSelectedFile(null);
   }
 
   function renderFiles() {
@@ -543,17 +541,15 @@ export default function App() {
         </div>
       )}
 
-      <label className="quick-upload" title="Choose files for local preview">
+      <button
+        type="button"
+        className="quick-upload"
+        title="Open KI Storage"
+        aria-label="Open KI Storage"
+        onClick={() => goTo("Storage")}
+      >
         <Icon name="upload" size={20}/>
-        <input type="file" multiple onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}/>
-      </label>
-      {selectedFile && (
-        <div className="upload-notice">
-          <strong>{selectedFile.name}</strong>
-          <span>{formatSize(selectedFile.size)} · Selected on this device only</span>
-          <button onClick={() => setSelectedFile(null)}>Dismiss</button>
-        </div>
-      )}
+      </button>
     </div>
   );
 }
