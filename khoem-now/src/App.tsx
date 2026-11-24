@@ -4,9 +4,16 @@ import "./App.css";
 
 type Section =
   | "Dashboard" | "Photos" | "Videos" | "Music"
-  | "Documents" | "Code" | "Archive" | "Certificates" | "Search";
+  | "Documents" | "Code" | "Archive" | "Certificates" | "Storage" | "Search";
 
 type VaultFile = { name: string; size: number };
+type KIFile = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  created: string;
+};
 type Manifest = {
   photos?: VaultFile[];
   videos?: VaultFile[];
@@ -48,6 +55,7 @@ const NAV: { name: Section; icon: string; detail: string }[] = [
   { name: "Code", icon: "code", detail: "Code library" },
   { name: "Archive", icon: "archive", detail: "Long-term storage" },
   { name: "Certificates", icon: "award", detail: "Achievements" },
+  { name: "Storage", icon: "box", detail: "KI cloud file storage" },
   { name: "Search", icon: "search", detail: "Find your data" },
 ];
 
@@ -101,6 +109,11 @@ export default function App() {
   const [certificates, setCertificates] = useState(FALLBACK_CERTIFICATES);
   const [query, setQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [storageFiles, setStorageFiles] = useState<KIFile[]>([]);
+  const [uploadQueue, setUploadQueue] = useState<File[]>([]);
+  const [storageLoading, setStorageLoading] = useState(false);
+  const [storageUploading, setStorageUploading] = useState(false);
+  const [storageError, setStorageError] = useState("");
   const [previewCert, setPreviewCert] = useState<Certificate | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -135,6 +148,100 @@ export default function App() {
 
     return () => { alive = false; controller.abort(); window.clearTimeout(timer); };
   }, []);
+
+
+  async function refreshStorage() {
+    setStorageLoading(true);
+    setStorageError("");
+
+    try {
+      const response = await fetch("/ki-api/v1/files", {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error(`KI API returned HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      setStorageFiles(Array.isArray(data.files) ? data.files : []);
+    } catch (error) {
+      setStorageError(
+        error instanceof Error ? error.message : "Could not load KI storage"
+      );
+    } finally {
+      setStorageLoading(false);
+    }
+  }
+
+  async function uploadToStorage() {
+    if (!uploadQueue.length || storageUploading) return;
+
+    setStorageUploading(true);
+    setStorageError("");
+
+    try {
+      for (const file of uploadQueue) {
+        if (file.size > 20 * 1024 * 1024) {
+          throw new Error(`${file.name}: maximum size is 20 MB`);
+        }
+
+        const response = await fetch(
+          `/ki-api/v1/files?name=${encodeURIComponent(file.name)}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": file.type || "application/octet-stream"
+            },
+            body: file
+          }
+        );
+
+        if (!response.ok) {
+          const message = await response.text();
+          throw new Error(
+            `Upload failed for ${file.name} (HTTP ${response.status}): ${message.slice(0, 180)}`
+          );
+        }
+      }
+
+      setUploadQueue([]);
+      await refreshStorage();
+    } catch (error) {
+      setStorageError(
+        error instanceof Error ? error.message : "Upload failed"
+      );
+    } finally {
+      setStorageUploading(false);
+    }
+  }
+
+  async function deleteStoredFile(file: KIFile) {
+    if (!window.confirm(`Delete "${file.name}" from KI storage?`)) return;
+
+    setStorageError("");
+
+    try {
+      const response = await fetch(
+        `/ki-api/v1/files/${encodeURIComponent(file.id)}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Delete failed (HTTP ${response.status})`);
+      }
+
+      await refreshStorage();
+    } catch (error) {
+      setStorageError(
+        error instanceof Error ? error.message : "Delete failed"
+      );
+    }
+  }
+
+  useEffect(() => {
+    if (section === "Storage") void refreshStorage();
+  }, [section]);
 
   const categories = [
     { name: "Photos", key: "photos", icon: "image" },
@@ -317,7 +424,100 @@ export default function App() {
           </>
         )}
 
-        {section !== "Dashboard" && (
+
+        {section === "Storage" && (
+          <section className="section-block content-panel">
+            <div className="section-title">
+              <div>
+                <span className="eyebrow">KI API / PRIVATE FILE STORAGE</span>
+                <h2>Your stored files</h2>
+              </div>
+              <span className="muted">
+                {storageFiles.length} files
+              </span>
+            </div>
+
+            <p className="storage-description">
+              Files are stored by your KI API, not only on this device.
+              Maximum 20 MB per file.
+            </p>
+
+            <div className="storage-toolbar">
+              <input
+                type="file"
+                multiple
+                onChange={(e) =>
+                  setUploadQueue(Array.from(e.target.files || []))
+                }
+                aria-label="Choose files to upload"
+              />
+              <button
+                className="primary-button"
+                onClick={uploadToStorage}
+                disabled={!uploadQueue.length || storageUploading}
+              >
+                {storageUploading ? "Uploading..." : "Upload to KI"}
+              </button>
+              <button
+                className="text-button"
+                onClick={() => void refreshStorage()}
+                disabled={storageLoading}
+              >
+                Refresh
+              </button>
+            </div>
+
+            {uploadQueue.length > 0 && (
+              <p className="muted">
+                Selected: {uploadQueue.map((f) => f.name).join(", ")}
+              </p>
+            )}
+
+            {storageError && (
+              <p className="storage-error" role="alert">{storageError}</p>
+            )}
+
+            {storageLoading ? (
+              <div className="empty-state">Loading KI storage...</div>
+            ) : storageFiles.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon"><Icon name="box" size={32}/></div>
+                <h3>No stored files</h3>
+                <p>Choose files above to upload them to your KI storage.</p>
+              </div>
+            ) : (
+              <div className="storage-file-list">
+                {storageFiles.map((file) => (
+                  <div className="storage-file-row" key={file.id}>
+                    <div className="storage-file-info">
+                      <strong>{file.name}</strong>
+                      <span>
+                        {formatSize(file.size)} · {file.type || "Unknown type"}
+                      </span>
+                      <small>{new Date(file.created).toLocaleString()}</small>
+                    </div>
+                    <div className="storage-file-actions">
+                      <a
+                        className="text-button"
+                        href={`/ki-api/v1/files/${encodeURIComponent(file.id)}`}
+                      >
+                        Download
+                      </a>
+                      <button
+                        className="text-button storage-delete"
+                        onClick={() => void deleteStoredFile(file)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {section !== "Dashboard" && section !== "Storage" && (
           <section className="section-block content-panel">
             <div className="section-title">
               <div><span className="eyebrow">YOUR COLLECTION</span><h2>{section === "Search" ? "Search all files" : section === "Certificates" ? "Your achievements" : `${section} library`}</h2></div>

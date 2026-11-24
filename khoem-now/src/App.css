@@ -329,3 +329,110 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* KI Storage */
+.storage-description {
+  color: var(--muted);
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+
+.storage-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.storage-toolbar input {
+  max-width: 100%;
+  min-width: 0;
+  color: var(--text);
+  background: var(--surface, transparent);
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.storage-toolbar button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.storage-file-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.storage-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface, transparent);
+  min-width: 0;
+}
+
+.storage-file-info {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.storage-file-info strong {
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+
+.storage-file-info span,
+.storage-file-info small {
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.storage-file-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.storage-delete {
+  color: #e58b8b;
+}
+
+.storage-error {
+  color: #e58b8b;
+  padding: 12px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .storage-file-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .storage-file-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .storage-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .storage-toolbar > * {
+    max-width: 100%;
+  }
+}
